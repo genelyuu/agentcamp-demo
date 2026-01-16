@@ -1,0 +1,8 @@
+{
+  "company": "Veluga",
+  "role": "Backend Engineer",
+  "tools": ["Slack", "GitHub"],
+  "rubric": {
+    "acceptance_keywords": ["원인", "재현", "재발방지", "로그"]
+  }
+}
