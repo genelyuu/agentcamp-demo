@@ -7,7 +7,7 @@ import streamlit as st
 from storage import get_org, set_org, get_knowledge, set_knowledge, get_sessions, set_sessions
 from agents import get_twins
 from ingestion import extract_knowledge
-from orchestrator import route_agent, answer_with_twin
+from orchestrator import route_agent, answer_with_twin, set_llm_client
 from scoring import simple_review
 
 # 페이지 설정
@@ -51,6 +51,63 @@ st.sidebar.title("AgentCamp 데모")
 mode = st.sidebar.radio("모드", ["Admin(회사 세팅)", "New Hire(OJT)", "Dashboard(HR)"])
 user_id = st.sidebar.text_input("신입 사용자 ID", value="minsu")
 ensure_user(user_id)
+
+# LLM 설정
+st.sidebar.divider()
+st.sidebar.subheader("LLM 설정")
+
+# Session state 초기화
+if "llm_provider" not in st.session_state:
+    st.session_state.llm_provider = "mock"
+if "llm_connected" not in st.session_state:
+    st.session_state.llm_connected = False
+
+llm_provider = st.sidebar.selectbox(
+    "LLM Provider",
+    ["mock", "claude", "openai"],
+    index=["mock", "claude", "openai"].index(st.session_state.llm_provider),
+    help="mock: API 키 없이 동작 / claude: Anthropic Claude / openai: OpenAI GPT"
+)
+
+api_key = ""
+model_name = ""
+
+if llm_provider != "mock":
+    api_key = st.sidebar.text_input(
+        "API Key",
+        type="password",
+        help="Anthropic 또는 OpenAI API 키를 입력하세요"
+    )
+
+    if llm_provider == "claude":
+        model_name = st.sidebar.selectbox(
+            "Model",
+            ["claude-sonnet-4-20250514", "claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"],
+            help="Claude 모델 선택"
+        )
+    else:  # openai
+        model_name = st.sidebar.selectbox(
+            "Model",
+            ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"],
+            help="OpenAI 모델 선택"
+        )
+
+if st.sidebar.button("LLM 적용"):
+    try:
+        set_llm_client(llm_provider, api_key if api_key else None, model_name if model_name else None)
+        st.session_state.llm_provider = llm_provider
+        st.session_state.llm_connected = True
+        if llm_provider == "mock":
+            st.sidebar.success("Mock 모드 활성화")
+        else:
+            st.sidebar.success(f"{llm_provider.upper()} 연결 완료!")
+    except Exception as e:
+        st.sidebar.error(f"연결 실패: {str(e)}")
+        st.session_state.llm_connected = False
+
+# 현재 LLM 상태 표시
+if st.session_state.llm_connected:
+    st.sidebar.caption(f"현재: {st.session_state.llm_provider.upper()} 모드")
 
 
 # ============================================================

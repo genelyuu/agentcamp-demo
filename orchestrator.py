@@ -2,9 +2,10 @@
 orchestrator.py - 질문 라우팅 & 답변 생성 모듈
 책임: 질문 기반 Twin 라우팅 및 Mock/LLM 답변 생성
 """
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from agents import TwinAgent
+from llm_client import BaseLLMClient, MockLLMClient, create_llm_client
 
 # 라우팅 키워드 정의
 _ROUTING_RULES = {
@@ -12,6 +13,31 @@ _ROUTING_RULES = {
     "JH Kim": ["요구사항", "스코프", "정의", "kpi", "지표"],
     "Seul Kim": ["ui", "ux", "화면", "프론트", "component", "반응형"],
 }
+
+# 글로벌 LLM 클라이언트 (기본: Mock)
+_llm_client: BaseLLMClient = MockLLMClient()
+
+
+def set_llm_client(
+    provider: str = "mock",
+    api_key: Optional[str] = None,
+    model: Optional[str] = None
+) -> None:
+    """
+    LLM 클라이언트 설정
+
+    Args:
+        provider: "mock", "claude", "openai"
+        api_key: API 키
+        model: 모델명 (선택)
+    """
+    global _llm_client
+    _llm_client = create_llm_client(provider, api_key, model)
+
+
+def get_llm_client() -> BaseLLMClient:
+    """현재 LLM 클라이언트 반환"""
+    return _llm_client
 
 
 def route_agent(question: str) -> str:
@@ -38,42 +64,21 @@ def answer_with_twin(
     twin: TwinAgent,
     org: Dict[str, Any],
     knowledge_snippets: str,
-    question: str
+    question: str,
+    llm_client: Optional[BaseLLMClient] = None
 ) -> str:
     """
-    Digital Twin으로 답변 생성 (Mock 모드)
+    Digital Twin으로 답변 생성
 
     Args:
         twin: TwinAgent 인스턴스
         org: 조직 설정
         knowledge_snippets: 관련 지식 스니펫
         question: 사용자 질문
+        llm_client: LLM 클라이언트 (없으면 글로벌 클라이언트 사용)
 
     Returns:
-        Mock 답변 문자열
+        답변 문자열
     """
-    lines = [
-        f"[{twin.name} | {twin.role}]",
-        f"스타일: {twin.style}",
-        "",
-        f"질문: {question}",
-        "",
-        "내가 보는 핵심:",
-    ]
-
-    # 지식 스니펫 활용
-    if knowledge_snippets:
-        lines.append(f"- (회사 지식 참고) {knowledge_snippets[:280]}")
-
-    lines.extend([
-        "",
-        "권장 액션(오늘 OJT 관점):",
-        "1) 완료 기준을 1문장으로 다시 쓰기",
-        "2) 지금 가진 근거(로그/스크린샷/재현단계)를 붙이기",
-        "3) 10분 안에 검증 가능한 다음 스텝 실행",
-        "",
-        "주의:",
-        f"- {twin.decision_rules[0] if twin.decision_rules else '근거 기반 판단'}",
-    ])
-
-    return "\n".join(lines)
+    client = llm_client or _llm_client
+    return client.generate_response(twin, org, knowledge_snippets, question)

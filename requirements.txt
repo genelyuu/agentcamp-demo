@@ -1,3 +1,7 @@
 streamlit>=1.37.0
 pydantic>=2.8.0
 python-dotenv>=1.0.0
+
+# LLM Integration
+anthropic>=0.18.0
+openai>=1.0.0
