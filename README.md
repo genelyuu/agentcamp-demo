@@ -170,6 +170,7 @@ flowchart TB
 ![Level 1 GIF](https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv_1.gif)
 - 템플릿화, 표준화, 근거 인용, 반복 제거
 - Admin 업로드 후 Rule/Pitfall/Glossary Top-3 카드
+- meeting_record_STT.txt 를 활용하여 체험해보세요!
 
 <table>
   <colgroup>
