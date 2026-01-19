@@ -60,5 +60,14 @@ Thumbs.db
 
 # Project specific
 docs/
-CLAUDE.md
 todos.md
+
+# Node.js (if any)
+node_modules/
+package-lock.json
+
+# Windows artifacts
+nul
+
+# Scripts (local)
+scripts/

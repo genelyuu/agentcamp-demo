@@ -1,14 +1,24 @@
 """
 app.py - Streamlit UI 메인 엔트리포인트
 책임: Admin / New Hire / Dashboard 모드 UI 렌더링
+ADR-101: UI/Core Boundary Separation - UI-only 레이어
 """
 import streamlit as st
 
-from storage import get_org, set_org, get_knowledge, set_knowledge, get_sessions, set_sessions
+from core import (
+    get_org,
+    set_org,
+    get_knowledge,
+    set_knowledge,
+    get_sessions,
+    set_sessions,
+    route_agent,
+    answer_with_twin,
+    set_llm_client,
+    simple_review,
+)
 from agents import get_twins
 from ingestion import extract_knowledge
-from orchestrator import route_agent, answer_with_twin, set_llm_client
-from scoring import simple_review
 
 # 페이지 설정
 st.set_page_config(

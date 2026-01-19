@@ -5,3 +5,10 @@ python-dotenv>=1.0.0
 # LLM Integration
 anthropic>=0.18.0
 openai>=1.0.0
+
+# Logging (LOG-001)
+loguru>=0.7.0
+
+# Testing (TEST-001)
+pytest>=8.0.0
+pytest-cov>=4.0.0
