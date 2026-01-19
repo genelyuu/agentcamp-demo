@@ -28,7 +28,7 @@ SESS_PATH = os.path.join(DATA_DIR, "sessions.json")
 _DEFAULTS = {
     ORG_PATH: {
         "company": "Veluga",
-        "role": "Backend Engineer",
+        "role": "Project Manager",
         "tools": ["Slack", "GitHub"],
         "rubric": {"acceptance_keywords": ["원인", "재현", "재발방지", "로그"]}
     },
