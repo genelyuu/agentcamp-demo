@@ -12,6 +12,7 @@
 <p align="center">
   <strong>AI로 바꾸는 온보딩(OJT) 운영</strong><br/>
   <code>회사 지식 → 질문 → 리뷰 → 지표</code> 폐루프
+
 </p>
 
 <p align="center">
@@ -22,18 +23,18 @@
   <a href="#-사업성">사업성</a> •
   <a href="#-기술">기술</a> •
   <a href="#-quick-start">Quick Start</a>
+  <br/>
+  <a>LLM Online 데모를 원하시는 경우, openai 혹은 claude api key를 입력해 주시기 바랍니다. </a>
 </p>
 
 ---
-
-## TL;DR
 
 > **AgentCamp**는 조직의 '일상 텍스트'를 자동으로 **회사 룰·실수 패턴·프로세스**로 정리하고,  
 > 그 지식이 **질문 답변 → 제출 리뷰 → HR 대시보드**까지 즉시 연결되는 **OJT 운영 AI**입니다.
 
 <br/>
 
-### "AI로 바꾸는 일과 업무"
+## "AI로 바꾸는 일과 업무"
 
 실제 업무에서 AI가 바꿔야 하는 건 "한 번 멋진 답변"이 아니라 **업무 운영의 비용 구조**입니다.
 
@@ -66,7 +67,7 @@
 
 <br/>
 
-### 지식이 답변에서 끝나지 않고, 평가와 지표로 연결된다
+## 지식이 답변에서 끝나지 않고, 평가와 지표로 연결된다
 
 ```mermaid
 flowchart LR
@@ -125,7 +126,7 @@ flowchart TB
 
 <table>
   <colgroup>
-    <col style="width: 26%;" />
+    <col style="width: 50%;" />
     <col style="width: 74%;" />
   </colgroup>
   <thead>
@@ -220,25 +221,9 @@ flowchart TB
 
 <br/>
 
-### Tech Stack (Mermaid)
-
-```mermaid
-flowchart LR
-  FE["Frontend<br/>Streamlit"] --> BE["Backend<br/>Python"]
-  BE --> LLM["LLM (Optional)<br/>OpenAI / Anthropic"]
-  BE --> DEP["Deployment<br/>Minimal dependencies"]
-
-  classDef box fill:#fff,stroke:#333,stroke-width:1px,rx:10,ry:10;
-  class FE,BE,LLM,DEP box;
----
 
 ---
 
-## 제품 개요
-
-> **3모드로 완결되는 OJT 운영**
-
-<br/>
 
 ### 1️⃣ Admin (회사 세팅/데이터 업로드)
 
