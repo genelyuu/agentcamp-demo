@@ -3,15 +3,21 @@ core/storage.py - JSON 저장소 모듈
 ARCH-005: storage.py → core/storage.py 마이그레이션
 ADR-101: UI/Core Boundary Separation
 LOG-003: 로깅 적용
+ERR-SEC-001: 파일 권한 설정 추가
 """
 import json
 import os
+import stat
+import platform
 from typing import Any, Dict
 
 from schemas import OrgConfig, KnowledgeBase, SessionStore
 from .logger import get_logger
 
 logger = get_logger("storage")
+
+# 파일 권한 설정 (Unix: owner read/write only)
+_FILE_PERMISSION = stat.S_IRUSR | stat.S_IWUSR  # 0o600
 
 DATA_DIR = "data"
 ORG_PATH = os.path.join(DATA_DIR, "org.json")
@@ -53,12 +59,27 @@ def load_json(path: str) -> Dict[str, Any]:
         raise
 
 
+def _set_file_permission(path: str) -> None:
+    """
+    파일 권한 설정 (ERR-SEC-001)
+    Unix 계열: owner read/write only (0o600)
+    Windows: ACL은 별도 처리 필요 (기본 동작 유지)
+    """
+    try:
+        if platform.system() != "Windows":
+            os.chmod(path, _FILE_PERMISSION)
+            logger.debug(f"File permission set: path={path}, mode=0o600")
+    except Exception as e:
+        logger.warning(f"Failed to set file permission: path={path}, error={str(e)}")
+
+
 def save_json(path: str, obj: Dict[str, Any]) -> None:
-    """JSON 파일 저장"""
+    """JSON 파일 저장 (with secure file permissions)"""
     _ensure()
     try:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(obj, f, ensure_ascii=False, indent=2)
+        _set_file_permission(path)
         logger.debug(f"Saved JSON: path={path}")
     except Exception as e:
         logger.error(f"Failed to save JSON: path={path}, error={str(e)}")

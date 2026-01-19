@@ -1,0 +1,93 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4A90A4', 'primaryTextColor': '#fff', 'primaryBorderColor': '#2C5F6D', 'lineColor': '#5A5A5A', 'secondaryColor': '#F5A623', 'tertiaryColor': '#7ED321'}}}%%
+flowchart TB
+    subgraph UI["🖥️ Presentation Layer"]
+        APP["app.py<br/>(Streamlit UI)"]
+        subgraph MODES["UI Modes"]
+            ADMIN["Admin"]
+            NEWHIRE["NewHire"]
+            DASH["Dashboard"]
+        end
+    end
+
+    subgraph FACADE["📡 API Boundary (ADR-101)"]
+        API["AgentCampAPI<br/>core/api.py"]
+    end
+
+    subgraph CORE["🧠 Business Logic Layer"]
+        subgraph ORCH["Orchestrator"]
+            ROUTE["route_question()"]
+            ANSWER["answer_question()"]
+        end
+        
+        subgraph EVAL["Evaluation"]
+            REVIEW["evaluate_submission()"]
+            JUDGE["evaluate_task()"]
+        end
+        
+        subgraph RISK["Risk Management"]
+            RISKM["risk.py"]
+            INCIDENT["incident.py"]
+        end
+    end
+
+    subgraph LLM["🤖 LLM Capability Layer (ADR-104)"]
+        subgraph CAPS["Capabilities (Protocols)"]
+            ROUTER["RouterCapability"]
+            ANSWERER["AnswererCapability"]
+            EXTRACTOR["ExtractorCapability"]
+            JUDGECAP["JudgeCapability"]
+        end
+        
+        subgraph PROVIDERS["Providers"]
+            MOCK["MockProvider"]
+            CLAUDE["ClaudeProvider"]
+            OPENAI["OpenAIProvider"]
+        end
+    end
+
+    subgraph CROSS["⚙️ Cross-Cutting Concerns"]
+        LOGGER["logger.py<br/>(loguru)"]
+        ERRORS["errors.py<br/>(Sentry)"]
+        REPO["repository.py<br/>(BaseJSONRepository)"]
+        SCHEMAS["schemas/<br/>(Pydantic)"]
+    end
+
+    subgraph DATA["💾 Data Layer"]
+        subgraph STORAGE["JSON Storage"]
+            ORG["org.json"]
+            KNOW["knowledge.json"]
+            SESS["sessions.json"]
+            RISKS["risk_register.json"]
+            INCS["incidents.json"]
+        end
+        
+        subgraph TWINS["Digital Twins"]
+            SAM["Sam Lee<br/>(CEO)"]
+            JH["JH Kim<br/>(PM)"]
+            SEUL["Seul Kim<br/>(Frontend)"]
+            JIN["Jin Park<br/>(Backend)"]
+        end
+    end
+
+    APP --> API
+    MODES --> APP
+    API --> ORCH
+    API --> EVAL
+    API --> RISK
+    
+    ROUTE --> ROUTER
+    ANSWER --> ANSWERER
+    REVIEW --> JUDGECAP
+    JUDGE --> JUDGECAP
+    
+    ROUTER --> PROVIDERS
+    ANSWERER --> PROVIDERS
+    EXTRACTOR --> PROVIDERS
+    JUDGECAP --> PROVIDERS
+    
+    ORCH --> TWINS
+    CORE --> STORAGE
+    RISK --> STORAGE
+    
+    CORE -.-> CROSS
+    LLM -.-> CROSS
