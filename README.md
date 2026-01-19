@@ -87,151 +87,6 @@ flowchart LR
 ## 핵심 흐름
 
 ```mermaid
-flowchart LR
-  U["📁 팀의 회의/슬랙 텍스트 업로드"] --> K["📚 회사 지식으로 변환<br/>(규칙 · 실수 · 프로세스)"]
-  K --> Q["🤖 신입 질문"]
-  Q --> R["🧭 Digital Twin 라우팅<br/>(CEO / PM / FE / BE)"]
-  R --> A["💬 답변 + 근거 노출<br/>(키워드 · 스코어 · 인용)"]
-  A --> S["✅ 제출물 자동 리뷰<br/>(원인 · 재현 · 재발방지 · 증거)"]
-  S --> D["📊 HR/리드 대시보드<br/>(적응도 · 리스크 · 질문량 · 완료율)"]
-
-  classDef box fill:#fff,stroke:#333,stroke-width:1px,rx:10,ry:10;
-  class U,K,Q,R,A,S,D box;
-```
-
----
-
-## 제품 개요
-
-> **3모드로 완결되는 OJT 운영**
-
-<br/>
-
-### 1️⃣ Admin (회사 세팅/데이터 업로드)
-
-<table>
-  <colgroup>
-    <col style="width: 22%;" />
-    <col style="width: 78%;" />
-  </colgroup>
-  <thead>
-    <tr>
-      <th align="left"><strong>기능</strong></th>
-      <th align="left"><strong>설명</strong></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>회사/직무 세팅</strong></td>
-      <td>회사명, 직무, 루브릭(데모) 설정</td>
-    </tr>
-    <tr>
-      <td><strong>지식 업로드</strong></td>
-      <td>회의 STT/Slack 텍스트 → 규칙/실수/프로세스 자동 추출</td>
-    </tr>
-    <tr>
-      <td><strong>Active Knowledge</strong></td>
-      <td><strong>Top-3</strong> “운영에 쓰이는 지식” 고정 표시</td>
-    </tr>
-  </tbody>
-</table>
-
-<br/>
-
-### 2️⃣ New Hire (OJT 실행)
-
-<table>
-  <colgroup>
-    <col style="width: 22%;" />
-    <col style="width: 78%;" />
-  </colgroup>
-  <thead>
-    <tr>
-      <th align="left"><strong>기능</strong></th>
-      <th align="left"><strong>설명</strong></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>오늘의 미션</strong></td>
-      <td>업무 컨텍스트 포함된 미션 수령</td>
-    </tr>
-    <tr>
-      <td><strong>질문하기</strong></td>
-      <td>Digital Twin 라우팅 + 근거(키워드/스코어) 노출</td>
-    </tr>
-    <tr>
-      <td><strong>제출하기</strong></td>
-      <td>구조 루브릭 점수/피드백 + 회사 지식 인용</td>
-    </tr>
-  </tbody>
-</table>
-
-<br/>
-
-### 3️⃣ Dashboard (HR/리드 운영)
-
-<table>
-  <colgroup>
-    <col style="width: 22%;" />
-    <col style="width: 78%;" />
-  </colgroup>
-  <thead>
-    <tr>
-      <th align="left"><strong>기능</strong></th>
-      <th align="left"><strong>설명</strong></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>통합 현황</strong></td>
-      <td>질문량/트윈 호출/재제출/완료 업무/적응도/리스크</td>
-    </tr>
-    <tr>
-      <td><strong>리스크 규칙</strong></td>
-      <td>지표의 의미를 명시하여 고정</td>
-    </tr>
-  </tbody>
-</table>
-
----
-
-## 사업성
-
-### 문제는 보편적이고 반복된다
-
-<table>
-  <colgroup>
-    <col style="width: 26%;" />
-    <col style="width: 74%;" />
-  </colgroup>
-  <thead>
-    <tr>
-      <th align="left"><strong>조직 유형</strong></th>
-      <th align="left"><strong>문제</strong></th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>스타트업/중소팀</strong></td>
-      <td>온보딩 문서가 없거나 최신성 유지가 어려움</td>
-    </tr>
-    <tr>
-      <td><strong>성장기 조직</strong></td>
-      <td>제품/프로세스 변화 속도가 빨라 사람이 따라가기 어려움</td>
-    </tr>
-    <tr>
-      <td><strong>원격·분산팀</strong></td>
-      <td>Slack/회의에 지식이 흩어져 온보딩이 개인 의존적으로 운영됨</td>
-    </tr>
-  </tbody>
-</table>
-
-<br/>
-
-### AgentCamp 가치흐름 / ROI 트리 (한 장 요약)
-
-```mermaid
 flowchart TB
   P["OJT 운영의 구조적 문제"] --> C1["반복 질문 비용 ↑"]
   P --> C2["리뷰 품질 편차 비용 ↑"]
@@ -375,7 +230,139 @@ flowchart LR
 
   classDef box fill:#fff,stroke:#333,stroke-width:1px,rx:10,ry:10;
   class FE,BE,LLM,DEP box;
-```
+---
+
+---
+
+## 제품 개요
+
+> **3모드로 완결되는 OJT 운영**
+
+<br/>
+
+### 1️⃣ Admin (회사 세팅/데이터 업로드)
+
+<table>
+  <colgroup>
+    <col style="width: 22%;" />
+    <col style="width: 78%;" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th align="left"><strong>기능</strong></th>
+      <th align="left"><strong>설명</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>회사/직무 세팅</strong></td>
+      <td>회사명, 직무, 루브릭(데모) 설정</td>
+    </tr>
+    <tr>
+      <td><strong>지식 업로드</strong></td>
+      <td>회의 STT/Slack 텍스트 → 규칙/실수/프로세스 자동 추출</td>
+    </tr>
+    <tr>
+      <td><strong>Active Knowledge</strong></td>
+      <td><strong>Top-3</strong> “운영에 쓰이는 지식” 고정 표시</td>
+    </tr>
+  </tbody>
+</table>
+
+<br/>
+
+### 2️⃣ New Hire (OJT 실행)
+
+<table>
+  <colgroup>
+    <col style="width: 22%;" />
+    <col style="width: 78%;" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th align="left"><strong>기능</strong></th>
+      <th align="left"><strong>설명</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>오늘의 미션</strong></td>
+      <td>업무 컨텍스트 포함된 미션 수령</td>
+    </tr>
+    <tr>
+      <td><strong>질문하기</strong></td>
+      <td>Digital Twin 라우팅 + 근거(키워드/스코어) 노출</td>
+    </tr>
+    <tr>
+      <td><strong>제출하기</strong></td>
+      <td>구조 루브릭 점수/피드백 + 회사 지식 인용</td>
+    </tr>
+  </tbody>
+</table>
+
+<br/>
+
+### 3️⃣ Dashboard (HR/리드 운영)
+
+<table>
+  <colgroup>
+    <col style="width: 22%;" />
+    <col style="width: 78%;" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th align="left"><strong>기능</strong></th>
+      <th align="left"><strong>설명</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>통합 현황</strong></td>
+      <td>질문량/트윈 호출/재제출/완료 업무/적응도/리스크</td>
+    </tr>
+    <tr>
+      <td><strong>리스크 규칙</strong></td>
+      <td>지표의 의미를 명시하여 고정</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+## 사업성
+
+### 문제는 보편적이고 반복된다
+
+<table>
+  <colgroup>
+    <col style="width: 26%;" />
+    <col style="width: 74%;" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th align="left"><strong>조직 유형</strong></th>
+      <th align="left"><strong>문제</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>스타트업/중소팀</strong></td>
+      <td>온보딩 문서가 없거나 최신성 유지가 어려움</td>
+    </tr>
+    <tr>
+      <td><strong>성장기 조직</strong></td>
+      <td>제품/프로세스 변화 속도가 빨라 사람이 따라가기 어려움</td>
+    </tr>
+    <tr>
+      <td><strong>원격·분산팀</strong></td>
+      <td>Slack/회의에 지식이 흩어져 온보딩이 개인 의존적으로 운영됨</td>
+    </tr>
+  </tbody>
+</table>
+
+<br/>
+
+
 
 ---
 
