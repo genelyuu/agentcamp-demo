@@ -87,7 +87,7 @@ flowchart LR
 ## 핵심 흐름
 
 ```mermaid
-flowchart TB
+flowchart LR
   U["📁 팀의 회의/슬랙 텍스트 업로드"] --> K["📚 회사 지식으로 변환<br/>(규칙 · 실수 · 프로세스)"]
   K --> Q["🤖 신입 질문"]
   Q --> R["🧭 Digital Twin 라우팅<br/>(CEO / PM / FE / BE)"]
