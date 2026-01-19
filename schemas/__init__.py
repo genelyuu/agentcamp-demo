@@ -13,6 +13,7 @@ from .knowledge import KnowledgeItem, KnowledgeBase
 from .organization import OrgConfig, RubricConfig
 from .session import UserSession, SessionStore, OJTTask, ChatMessage
 from .audit import AuditEvent
+from .risk import RiskEntry, Incident, RiskRegister, IncidentLog
 
 __all__ = [
     # Enums
@@ -34,4 +35,9 @@ __all__ = [
     "ChatMessage",
     # Audit
     "AuditEvent",
+    # Risk (ADR-105)
+    "RiskEntry",
+    "Incident",
+    "RiskRegister",
+    "IncidentLog",
 ]

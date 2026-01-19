@@ -1,0 +1,86 @@
+{
+  "risks": [
+    {
+      "risk_id": "R-001",
+      "category": "halluc",
+      "description": "LLM이 존재하지 않는 정보를 사실처럼 생성할 수 있음 (Hallucination)",
+      "likelihood": 4,
+      "impact": 4,
+      "controls": [
+        "RAG 기반 응답으로 지식베이스 참조 강제",
+        "응답에 출처 표시 요구",
+        "사용자에게 검증 권고 메시지 표시"
+      ],
+      "owner": "AI Team",
+      "status": "mitigated"
+    },
+    {
+      "risk_id": "R-002",
+      "category": "pii_leak",
+      "description": "사용자 입력 또는 LLM 응답에 개인정보가 포함될 수 있음",
+      "likelihood": 3,
+      "impact": 5,
+      "controls": [
+        "입력 필터링 (주민등록번호, 전화번호 패턴)",
+        "응답 필터링 적용",
+        "PII 탐지 시 경고 및 마스킹"
+      ],
+      "owner": "Security Team",
+      "status": "mitigated"
+    },
+    {
+      "risk_id": "R-003",
+      "category": "injection",
+      "description": "프롬프트 인젝션을 통한 시스템 프롬프트 노출 또는 조작 시도",
+      "likelihood": 4,
+      "impact": 3,
+      "controls": [
+        "입력 sanitization",
+        "인젝션 패턴 탐지 및 차단",
+        "시스템 프롬프트 분리"
+      ],
+      "owner": "Security Team",
+      "status": "mitigated"
+    },
+    {
+      "risk_id": "R-004",
+      "category": "misroute",
+      "description": "질문이 잘못된 Digital Twin에게 라우팅될 수 있음",
+      "likelihood": 3,
+      "impact": 2,
+      "controls": [
+        "라우팅 키워드 규칙 정교화",
+        "Eval Gate 라우팅 테스트 (90%+ 목표)",
+        "사용자에게 라우팅 결과 표시"
+      ],
+      "owner": "AI Team",
+      "status": "open"
+    },
+    {
+      "risk_id": "R-005",
+      "category": "bias",
+      "description": "LLM이 특정 관점에 편향된 조언을 제공할 수 있음",
+      "likelihood": 3,
+      "impact": 3,
+      "controls": [
+        "다양한 페르소나(4 Twins) 제공",
+        "사용자에게 다중 관점 확인 권고"
+      ],
+      "owner": "AI Team",
+      "status": "accepted"
+    },
+    {
+      "risk_id": "R-006",
+      "category": "offtopic",
+      "description": "사용자가 업무와 무관한 질문을 할 수 있음",
+      "likelihood": 4,
+      "impact": 1,
+      "controls": [
+        "오프토픽 탐지 로직",
+        "업무 관련 질문으로 유도"
+      ],
+      "owner": "Product Team",
+      "status": "mitigated"
+    }
+  ]
+}

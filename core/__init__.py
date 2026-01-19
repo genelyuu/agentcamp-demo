@@ -13,6 +13,8 @@ from .storage import (
     get_sessions,
     set_sessions,
 )
+from . import risk
+from . import incident
 
 __all__ = [
     # Facade API
@@ -32,4 +34,7 @@ __all__ = [
     "set_knowledge",
     "get_sessions",
     "set_sessions",
+    # Risk (ADR-105)
+    "risk",
+    "incident",
 ]
