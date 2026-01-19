@@ -1,3 +1,466 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": "playbook-20260119-001",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 고객 가치/속도/리스크를 동시에 본다. 셋 중 하나만 최적화하면 나중에 비용이 폭증한다."
+    },
+    {
+      "id": "playbook-20260119-002",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 불확실한 상태에서 \"완벽한 답\"을 기다리지 말고, 10분 내 검증 가능한 다음 스텝을 만든다."
+    },
+    {
+      "id": "playbook-20260119-003",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: \"확인 중\"만 반복하지 말 것. 항상 다음 액션 + ETA(다음 업데이트 시점)를 포함해야 한다."
+    },
+    {
+      "id": "playbook-20260119-004",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: 책임 회피 문장(\"저희가 알 수 없습니다\")을 쓰지 말 것. 대안/우회/정보 요청 중 하나를 제시한다."
+    },
+    {
+      "id": "playbook-20260119-005",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: 운영 지식은 \"바로 행동으로 바뀌는 규칙/템플릿/체크리스트\"를 말한다. 설명문은 지식으로 취급하지 않는다."
+    },
+    {
+      "id": "playbook-20260119-006",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: 트리아지(Triage)는 분류→우선순위→담당 배정→1차 응답까지 포함한다. \"분류만\" 하면 트리아지가 아니다."
+    },
+    {
+      "id": "playbook-20260119-007",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: Severity는 S1(결제·로그인 불가/업무 중단), S2(핵심 기능 장애/데이터 손실 가능), S3(부분 오류/우회 가능), S4(문의/개선)로 정의한다."
+    },
+    {
+      "id": "playbook-20260119-008",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: Enterprise 고객은 동일 Severity라도 우선순위를 1단계 상향한다. (단, 근거 없는 상향은 금지)"
+    },
+    {
+      "id": "playbook-20260119-009",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 모든 고객 문의에는 category(Billing/How-to/Bug/Account/Feature) 라벨을 반드시 붙인다."
+    },
+    {
+      "id": "playbook-20260119-010",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 모든 고객 응답은 템플릿 기반으로 시작하고, 부족하면 \"템플릿을 개선\"한다. 개인 스타일로 해결하려 하지 않는다."
+    },
+    {
+      "id": "playbook-20260119-011",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 고객 답변 템플릿은 3종(결제/사용방법/버그접수)으로 통일한다."
+    },
+    {
+      "id": "playbook-20260119-012",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 템플릿에는 공통으로 확인 범위 + 요청 정보 + ETA + 다음 액션이 포함되어야 한다."
+    },
+    {
+      "id": "playbook-20260119-013",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: 고객에게 내부 용어(request_id 등)를 강요하지 말 것. 선택지로 안내하되, 못 줘도 진행 가능하게 한다."
+    },
+    {
+      "id": "playbook-20260119-014",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "실수: 재현 조건 없이 \"버그\"로 단정하고 개발팀에 넘기면 왕복이 2~3회 발생한다."
+    },
+    {
+      "id": "playbook-20260119-015",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 버그는 \"증거 기반\"으로 다룬다. 로그/에러코드/시간대/엔드포인트 중 1개 이상을 확보한다."
+    },
+    {
+      "id": "playbook-20260119-016",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 버그 접수 시 재현 단계/환경/증거(로그 키워드 또는 스크린샷)를 최소 요구한다."
+    },
+    {
+      "id": "playbook-20260119-017",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: \"원인=서버가 느림\" 같은 추상 문장을 쓰지 말 것. 근거(수치/로그/샘플)를 붙인다."
+    },
+    {
+      "id": "playbook-20260119-018",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: 필수정보 누락은 재현/환경/증거 중 2개 이상이 없는 상태로 정의한다."
+    },
+    {
+      "id": "playbook-20260119-019",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 필수정보 누락이면 먼저 정보 요청 템플릿을 보내고, 그 다음에 개발 이관한다."
+    },
+    {
+      "id": "playbook-20260119-020",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: S1은 30분 내 1차 응답, 2시간 내 임시 완화 계획(워크어라운드/롤백)을 공유한다."
+    },
+    {
+      "id": "playbook-20260119-021",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: OJT 미션의 완료 기준(AC)은 \"원인/재현/재발방지/증거\" 4칸을 기본으로 한다."
+    },
+    {
+      "id": "playbook-20260119-022",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 리뷰 기준은 사람마다 달라지면 안 된다. 루브릭은 고정하고, 텍스트만 변형한다."
+    },
+    {
+      "id": "playbook-20260119-023",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 신입 제출물 피드백에는 항상 \"다음 스텝(10분 내)\"을 포함한다."
+    },
+    {
+      "id": "playbook-20260119-024",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: 리뷰에서 감정 평가(\"왜 이렇게 했냐\")를 하지 말 것. 구조(무엇이 빠졌나)만 말한다."
+    },
+    {
+      "id": "playbook-20260119-025",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "실수: 신입이 질문했을 때 바로 정답을 주면 학습이 느려진다. 먼저 \"확인해야 할 정보\"를 안내한다."
+    },
+    {
+      "id": "playbook-20260119-026",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: PM은 모호함을 관리한다. 문제정의→가설→성공지표(AC)→실험 순으로 말한다."
+    },
+    {
+      "id": "playbook-20260119-027",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: PM은 트리아지 결과를 최소 필드(ticket_id, category, severity, tier, owner, ETA, missing_info)로 남긴다."
+    },
+    {
+      "id": "playbook-20260119-028",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: 이슈를 \"메신저 대화\"로만 처리하지 말 것. 결정 사항은 문서(또는 티켓 코멘트)로 고정한다."
+    },
+    {
+      "id": "playbook-20260119-029",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: 결정(Decision)은 '누가/언제/무엇을/왜/다음 액션'이 포함되어야 한다."
+    },
+    {
+      "id": "playbook-20260119-030",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 한 페이지로 유지한다. 길어지면 삭제/축약한다. 운영 문서가 길면 아무도 안 본다."
+    },
+    {
+      "id": "playbook-20260119-031",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: FE는 사용자 흐름과 에러 케이스를 먼저 고정한다. (어디서/무엇을 입력했는지/무슨 반응인지)"
+    },
+    {
+      "id": "playbook-20260119-032",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: FE는 모바일 이슈면 기기/OS/브라우저/화면 크기 정보를 먼저 받는다."
+    },
+    {
+      "id": "playbook-20260119-033",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "실수: \"디자인이 이상하다\"로 끝내면 해결이 안 된다. 재현 스텝과 최소 수정안을 제시한다."
+    },
+    {
+      "id": "playbook-20260119-034",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: BE는 로그/메트릭/배포 이력 순서로 본다. 감으로 원인을 단정하지 않는다."
+    },
+    {
+      "id": "playbook-20260119-035",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: BE는 500 에러면 endpoint/top 요청, request_id 샘플, 시간대를 먼저 확보한다."
+    },
+    {
+      "id": "playbook-20260119-036",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "버그: \"배포 후만 발생\"이면 릴리즈 노트/feature flag/롤백 가능성부터 확인한다."
+    },
+    {
+      "id": "playbook-20260119-037",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: 운영 중에 스키마/정책을 즉흥 변경하지 말 것. 최소 변경 + 롤백 가능 상태를 유지한다."
+    },
+    {
+      "id": "playbook-20260119-038",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: '완화(Mitigation)'는 근본 해결이 아니라 고객 영향도를 낮추는 임시 조치다."
+    },
+    {
+      "id": "playbook-20260119-039",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 장애 보고는 5줄 요약(무슨 일이/누가 영향/원인 가설/완화/다음 업데이트)으로 시작한다."
+    },
+    {
+      "id": "playbook-20260119-040",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 장애가 S1/S2면 상태 업데이트 주기를 약속한다(예: 30분마다 1회)."
+    },
+    {
+      "id": "playbook-20260119-041",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: Slack은 \"논의\", 문서는 \"결정\"이다. 결정은 문서에 남긴다."
+    },
+    {
+      "id": "playbook-20260119-042",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: DM으로 중요한 결정을 하지 말 것. 팀 채널 또는 문서/티켓에 기록한다."
+    },
+    {
+      "id": "playbook-20260119-043",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: 'Done'은 \"고객/운영 관점에서 종료 조건\"을 만족했을 때다. 개발 완료만으로 Done이 아니다."
+    },
+    {
+      "id": "playbook-20260119-044",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "실수: 고객 커뮤니케이션 없이 내부에서만 해결하면, 고객은 '방치'로 느낀다."
+    },
+    {
+      "id": "playbook-20260119-045",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 고객에게 약속한 ETA를 지키기 어렵다면 즉시 업데이트하고, 대안을 제시한다."
+    },
+    {
+      "id": "playbook-20260119-046",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 모든 고객 응답은 정중하되 짧게 쓴다. 장문 설명은 링크/가이드로 분리한다."
+    },
+    {
+      "id": "playbook-20260119-047",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "금지: 고객 탓으로 돌리는 문장을 쓰지 말 것(\"고객님이 잘못하셨습니다\"). 확인 질문으로 바꾼다."
+    },
+    {
+      "id": "playbook-20260119-048",
+      "source": "playbook",
+      "tag": "process",
+      "text": "정의: '템플릿 개선'은 개인 문장 추가가 아니라 필드/순서/누락 방지 규칙을 고치는 것이다."
+    },
+    {
+      "id": "playbook-20260119-049",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "원칙: 반복되는 질문은 개인이 답하지 말고 템플릿/지식으로 승격한다."
+    },
+    {
+      "id": "playbook-20260119-050",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "해야: 매일 10분은 \"반복 문의 Top-3\"를 지식으로 정리한다. 이것이 회사의 속도를 만든다."
+    },
+    {
+      "id": "playbook-20260119-051",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Billing] 해야: 주문/결제 ID, 결제 일시, 결제 수단, 화면 캡처 중 2개 이상을 확보한다."
+    },
+    {
+      "id": "playbook-20260119-052",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Billing] 금지: 환불 가능 여부를 즉답하지 않는다. 정책/승인 플로우 확인 후 ETA를 제시한다."
+    },
+    {
+      "id": "playbook-20260119-053",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Billing] 원칙: 결제 이슈는 감정 대응이 중요하다. 사과 + 확인 범위 + 다음 액션을 먼저 준다."
+    },
+    {
+      "id": "playbook-20260119-054",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[How-to] 해야: 고객 목적을 1문장으로 확인한다(\"무엇을 달성하려는지\")."
+    },
+    {
+      "id": "playbook-20260119-055",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[How-to] 해야: 3단계로 안내하고, 마지막에 확인 질문 1개를 붙인다."
+    },
+    {
+      "id": "playbook-20260119-056",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "[How-to] 실수: 기능 설명만 하고 고객의 현재 화면/권한을 확인하지 않으면 반복 문의가 발생한다."
+    },
+    {
+      "id": "playbook-20260119-057",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Bug] 해야: 재현 단계(1~4단계), 환경(OS/브라우저/앱버전), 증거(에러코드/스크린샷/로그키) 확보."
+    },
+    {
+      "id": "playbook-20260119-058",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "[Bug] 버그: 요청이 몰릴 때 \"일괄 답변\"으로 끝내면 불만이 폭증한다. 상태 업데이트 주기를 공지한다."
+    },
+    {
+      "id": "playbook-20260119-059",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Account] 해야: 계정 식별 정보(이메일 도메인/조직)와 발생 범위(몇 명)가 필요하다."
+    },
+    {
+      "id": "playbook-20260119-060",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Account] 금지: 고객에게 민감 정보를 요구하지 않는다. 필요한 경우 보안 문구 포함 후 최소 요청한다."
+    },
+    {
+      "id": "playbook-20260119-061",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Feature] 원칙: 즉답 대신 \"가능/불가/대안/예상 시점\" 4요소로 응답한다."
+    },
+    {
+      "id": "playbook-20260119-062",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[Feature] 해야: 고객의 사용 맥락(누가/무엇을/얼마나 자주/현재 대안)을 질문 2개로 확보한다."
+    },
+    {
+      "id": "playbook-20260119-063",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[OJT] 원칙: 신입 질문에는 정답 1개가 아니라 \"확인해야 할 정보 3개\"를 먼저 준다."
+    },
+    {
+      "id": "playbook-20260119-064",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[OJT] 해야: 질문을 \"업무 산출물\"로 변환한다(예: 체크리스트, 템플릿, AC)."
+    },
+    {
+      "id": "playbook-20260119-065",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "[OJT] 실수: 질문을 대화로 끝내면 팀의 반복 업무가 줄지 않는다."
+    },
+    {
+      "id": "playbook-20260119-066",
+      "source": "playbook",
+      "tag": "process",
+      "text": "[OJT 루브릭] 원인(가설): 1문장 이상, \"무엇이/왜\" 포함"
+    },
+    {
+      "id": "playbook-20260119-067",
+      "source": "playbook",
+      "tag": "process",
+      "text": "[OJT 루브릭] 재현: 단계/조건/환경"
+    },
+    {
+      "id": "playbook-20260119-068",
+      "source": "playbook",
+      "tag": "process",
+      "text": "[OJT 루브릭] 재발방지: 실행 가능 액션"
+    },
+    {
+      "id": "playbook-20260119-069",
+      "source": "playbook",
+      "tag": "process",
+      "text": "[OJT 루브릭] 증거: 로그/수치/에러코드/request_id/스크린샷 중 1개 이상"
+    },
+    {
+      "id": "playbook-20260119-070",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[OJT 루브릭] 금지: 키워드만 넣고 구조가 없으면 점수 주지 않는다."
+    },
+    {
+      "id": "playbook-20260119-071",
+      "source": "playbook",
+      "tag": "process",
+      "text": "[회의 기록] 정의: Decision ID / What / Why / Owner / ETA / Risk / Next action 형식으로 남긴다."
+    },
+    {
+      "id": "playbook-20260119-072",
+      "source": "playbook",
+      "tag": "pitfall",
+      "text": "[회의 기록] 실수: \"회의록만\" 남기고 운영 룰로 승격하지 않으면, 지식이 전파되지 않는다."
+    },
+    {
+      "id": "playbook-20260119-073",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[보안] 금지: 고객의 비밀번호/결제정보 전체를 요청하지 말 것."
+    },
+    {
+      "id": "playbook-20260119-074",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[보안] 해야: 필요한 최소 정보만 요청하고, 민감 정보는 마스킹 안내를 포함한다."
+    },
+    {
+      "id": "playbook-20260119-075",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[보안] 원칙: 공개 채널에 고객 식별 정보를 공유하지 않는다."
+    },
+    {
+      "id": "playbook-20260119-076",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[품질] 원칙: 작은 팀은 복잡성을 싫어한다. 자동화가 어렵다면 규칙을 단순화한다."
+    },
+    {
+      "id": "playbook-20260119-077",
+      "source": "playbook",
+      "tag": "rule",
+      "text": "[품질] 해야: \"반복되는 것\"은 지식으로 고정한다. 반복 질문이 곧 자동화 후보이다."
+    }
+  ]
 }
