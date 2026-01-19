@@ -5,6 +5,7 @@ ADR-101: UI/Core Boundary Separation - UI-only 레이어
 ADR-106: Citation Transparency - 지식 인용 표시
 ADR-108: Explainable Routing - 라우팅 근거 표시
 ADR-109: Structured Rubric Scoring - 4칸 체크리스트 표시
+ADR-110: Offline-first + LLM-enhanced 아키텍처
 """
 import streamlit as st
 
