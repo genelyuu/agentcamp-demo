@@ -3,13 +3,15 @@ core/evaluation.py - 평가 모듈
 ARCH-004: scoring.py → core/evaluation.py 마이그레이션
 ADR-101: UI/Core Boundary Separation
 ADR-103: Evaluation Gate
+ADR-106: Citation Transparency - 키워드 매칭 근거 투명성
 LOG-003: 로깅 적용
 ERR-TYPE-002: 타입 힌트 강화 (Dict → Union[Dict, OJTTask])
 """
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
-from schemas import OJTTask
+from schemas import OJTTask, ReviewResult, KeywordMatch
 from .logger import get_logger
+from .citation import extract_keyword_context
 
 logger = get_logger("evaluation")
 
@@ -120,3 +122,123 @@ def _evaluate_improvements(feedback: Dict[str, Any], submission: str) -> None:
         feedback["improvements"].append(
             "완료 기준 키워드(원인/재발방지/재현조건 등)를 더 명시하세요."
         )
+
+
+def _build_keyword_matches(
+    keywords: List[str],
+    submission: str
+) -> List[KeywordMatch]:
+    """
+    키워드 매칭 상세 결과 생성 (ADR-106)
+
+    Args:
+        keywords: 평가 키워드 리스트
+        submission: 제출 내용
+
+    Returns:
+        KeywordMatch 리스트
+    """
+    matches: List[KeywordMatch] = []
+    lower_submission = submission.lower()
+
+    for kw in keywords:
+        matched = kw.lower() in lower_submission
+        context = None
+
+        if matched:
+            context = extract_keyword_context(submission, kw, context_chars=40)
+
+        matches.append(KeywordMatch(
+            keyword=kw,
+            matched=matched,
+            context=context
+        ))
+
+    return matches
+
+
+def review_with_evidence(
+    task: Union[Dict[str, Any], OJTTask],
+    submission: str
+) -> ReviewResult:
+    """
+    루브릭 기반 제출물 평가 + 키워드 매칭 근거 포함 (ADR-106)
+
+    Args:
+        task: 미션 정보 (Dict 또는 OJTTask Pydantic 모델)
+        submission: 제출 내용
+
+    Returns:
+        ReviewResult (점수 + 피드백 + 키워드 매칭 근거)
+    """
+    # OJTTask를 Dict로 변환
+    if isinstance(task, OJTTask):
+        task = {
+            "title": task.title,
+            "context": task.context,
+            "deliverable": task.deliverable,
+            "acceptance_keywords": task.acceptance_keywords
+        }
+
+    keywords = task.get("acceptance_keywords", [])
+
+    # 키워드 매칭 상세 결과 생성
+    keyword_matches = _build_keyword_matches(keywords, submission)
+    hit_count = sum(1 for km in keyword_matches if km.matched)
+
+    # 점수 계산
+    score = 50
+    if keywords:
+        keyword_score = int(50 * (hit_count / len(keywords)))
+        score += keyword_score
+    else:
+        score += 20
+
+    # 강점/개선점 판정
+    strengths: List[str] = []
+    improvements: List[str] = []
+
+    threshold = max(1, len(keywords) // 2)
+    if hit_count >= threshold:
+        strengths.append("핵심 포인트를 일부 포함했습니다.")
+
+        # 매칭된 키워드 명시
+        matched_kws = [km.keyword for km in keyword_matches if km.matched]
+        if matched_kws:
+            strengths.append(f"포함된 키워드: {', '.join(matched_kws)}")
+
+    if len(submission) < 120:
+        improvements.append(
+            "설명이 너무 짧습니다. 근거(로그/수치/재현 조건)를 추가하세요."
+        )
+
+    if not strengths:
+        improvements.append(
+            "완료 기준 키워드(원인/재발방지/재현조건 등)를 더 명시하세요."
+        )
+
+        # 누락된 키워드 명시
+        missed_kws = [km.keyword for km in keyword_matches if not km.matched]
+        if missed_kws:
+            improvements.append(f"누락된 키워드: {', '.join(missed_kws)}")
+
+    final_score = min(100, score)
+
+    result = ReviewResult(
+        score=final_score,
+        strengths=strengths,
+        improvements=improvements,
+        next_step=(
+            "리뷰 반영 후 1회 재제출하거나, "
+            "AI 멘토에게 '어떤 로그를 봐야 하나'를 질문해보세요."
+        ),
+        keyword_matches=keyword_matches
+    )
+
+    logger.info(
+        f"Review with evidence: score={final_score}, "
+        f"keywords_hit={hit_count}/{len(keywords)}, "
+        f"submission_len={len(submission)}"
+    )
+
+    return result

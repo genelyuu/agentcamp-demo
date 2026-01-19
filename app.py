@@ -2,6 +2,7 @@
 app.py - Streamlit UI 메인 엔트리포인트
 책임: Admin / New Hire / Dashboard 모드 UI 렌더링
 ADR-101: UI/Core Boundary Separation - UI-only 레이어
+ADR-106: Citation Transparency - 지식 인용 표시
 """
 import streamlit as st
 
@@ -14,8 +15,10 @@ from core import (
     set_sessions,
     route_agent,
     answer_with_twin,
+    route_and_answer,
     set_llm_client,
     simple_review,
+    review_with_evidence,
 )
 from agents import get_twins
 from ingestion import extract_knowledge
@@ -224,12 +227,24 @@ elif mode == "New Hire(OJT)":
     )
     if st.button("질문 보내기") and q.strip():
         user["questions"] += 1
-        snippet = pick_knowledge_snippet()
-        who = route_agent(q)
-        ans = answer_with_twin(TWINS[who], ORG, snippet, q)
+
+        # ADR-106: Citation Transparency - 인용 정보 포함 응답
+        knowledge_items = KNOW.get("items", [])
+        result = route_and_answer(TWINS, ORG, knowledge_items, q)
+
         set_sessions(SESS)
-        st.markdown(f"### 라우팅: **{who}**")
-        st.code(ans)
+        st.markdown(f"### 라우팅: **{result.routed_to}**")
+        st.code(result.answer)
+
+        # 참고된 지식 표시 (ADR-106)
+        if result.has_citations:
+            with st.expander(f"📚 참고된 지식 ({len(result.citations)}건)", expanded=True):
+                for i, cite in enumerate(result.citations, 1):
+                    relevance_pct = int(cite.relevance_score * 100)
+                    st.markdown(f"**[{i}] {cite.source} / {cite.tag}** (관련도: {relevance_pct}%)")
+                    st.caption(cite.text)
+        else:
+            st.caption("ℹ️ 아직 업로드된 지식이 없어 기본 응답을 제공합니다. Admin 모드에서 지식을 추가해보세요.")
 
     # 3) 제출 & 리뷰
     st.subheader("3) 제출하기 → 리뷰 받기")
@@ -239,21 +254,41 @@ elif mode == "New Hire(OJT)":
         placeholder="원인/재현조건/재발방지/로그 키워드를 포함해 작성"
     )
     if st.button("제출 & 리뷰") and submission.strip() and task:
-        score, feedback = simple_review(task, submission)
+        # ADR-106: Citation Transparency - 키워드 매칭 근거 포함 리뷰
+        review_result = review_with_evidence(task, submission)
+
         user["tasks_done"] += 1
-        user["adapt_score"] = min(100, user["adapt_score"] + int(score * 0.1))
-        user["risk_score"] = max(0, user["risk_score"] - int(score * 0.05))
+        user["adapt_score"] = min(100, user["adapt_score"] + int(review_result.score * 0.1))
+        user["risk_score"] = max(0, user["risk_score"] - int(review_result.score * 0.05))
         set_sessions(SESS)
 
-        st.success(f"리뷰 점수: **{score}점**")
-        st.write("**강점**")
-        for s in feedback["strengths"]:
-            st.write(f"- {s}")
-        st.write("**개선점**")
-        for i in feedback["improvements"]:
-            st.write(f"- {i}")
+        st.success(f"리뷰 점수: **{review_result.score}점**")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write("**강점**")
+            for s in review_result.strengths:
+                st.write(f"- {s}")
+        with col2:
+            st.write("**개선점**")
+            for imp in review_result.improvements:
+                st.write(f"- {imp}")
+
         st.write("**다음 스텝**")
-        st.write(feedback["next_step"])
+        st.write(review_result.next_step)
+
+        # 키워드 매칭 상세 (ADR-106)
+        with st.expander(
+            f"🔍 키워드 매칭 상세 ({review_result.matched_count}/{review_result.total_keywords})",
+            expanded=True
+        ):
+            for km in review_result.keyword_matches:
+                if km.matched:
+                    st.markdown(f"✅ **{km.keyword}** - 매칭됨")
+                    if km.context:
+                        st.caption(f"   → \"{km.context}\"")
+                else:
+                    st.markdown(f"❌ **{km.keyword}** - 누락")
 
 
 # ============================================================

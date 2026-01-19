@@ -255,6 +255,30 @@ pytest tests/ -v
 
 ---
 
+## Deployment
+
+### Streamlit Cloud (Recommended)
+
+AgentCamp은 **Streamlit Cloud**에 배포되어 있습니다.
+
+| 항목 | 값 |
+|------|-----|
+| **Live Demo** | [agentcamp-demo.streamlit.app](https://agentcamp-demo-kvnmnjquyv6jfmwqhjt4f4.streamlit.app/) |
+| **Platform** | Streamlit Cloud |
+| **Runtime** | Python 3.11 |
+| **Config** | `.streamlit/config.toml` |
+
+### 배포 방식
+
+Streamlit Cloud를 사용하여 배포합니다.
+
+```bash
+# GitHub 연동 후 자동 배포
+git push origin main
+```
+
+---
+
 ## Key Features
 
 | Mode | Feature | Description |

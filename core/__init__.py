@@ -1,11 +1,20 @@
 """
 core - AgentCamp Business Logic Layer
 ADR-101: UI/Core Boundary Separation
+ADR-106: Citation Transparency
 LOG-002, ERR-001: Logging & Error Handling
 """
 from .api import AgentCampAPI
-from .orchestrator import route_agent, answer_with_twin, set_llm_client, get_llm_client
-from .evaluation import simple_review, review_with_task
+from .orchestrator import (
+    route_agent,
+    answer_with_twin,
+    answer_with_citations,
+    route_and_answer,
+    set_llm_client,
+    get_llm_client,
+)
+from .evaluation import simple_review, review_with_task, review_with_evidence
+from .citation import find_relevant_knowledge, extract_keyword_context
 from .storage import (
     get_org,
     set_org,
@@ -46,11 +55,17 @@ __all__ = [
     # Orchestrator
     "route_agent",
     "answer_with_twin",
+    "answer_with_citations",
+    "route_and_answer",
     "set_llm_client",
     "get_llm_client",
     # Evaluation
     "simple_review",
     "review_with_task",
+    "review_with_evidence",
+    # Citation (ADR-106)
+    "find_relevant_knowledge",
+    "extract_keyword_context",
     # Storage
     "get_org",
     "set_org",

@@ -2,17 +2,19 @@
 core/orchestrator.py - 질문 라우팅 & 답변 생성 모듈
 ARCH-003: orchestrator.py → core/ 마이그레이션
 ADR-101: UI/Core Boundary Separation
+ADR-106: Citation Transparency - 지식 인용 투명성
 LOG-003: 로깅 적용
 ERR-TYPE-001: 타입 힌트 강화 (Dict → Union[Dict, OrgConfig])
 """
 import time
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from agents import TwinAgent
 from llm_client import BaseLLMClient, MockLLMClient, create_llm_client
-from schemas import OrgConfig
+from schemas import OrgConfig, AnswerResult, Citation
 
 from .logger import get_logger
+from .citation import find_relevant_knowledge
 
 logger = get_logger("orchestrator")
 
@@ -111,3 +113,79 @@ def answer_with_twin(
         duration_ms = (time.time() - start_time) * 1000
         logger.error(f"Answer generation failed: twin={twin.name}, error={str(e)}, duration={duration_ms:.2f}ms")
         raise
+
+
+def answer_with_citations(
+    twin: TwinAgent,
+    org: Union[Dict[str, Any], OrgConfig],
+    knowledge_items: List[Dict[str, Any]],
+    question: str,
+    llm_client: Optional[BaseLLMClient] = None
+) -> AnswerResult:
+    """
+    Digital Twin으로 답변 생성 + 인용 정보 포함 (ADR-106)
+
+    Args:
+        twin: TwinAgent 인스턴스
+        org: 조직 설정 (Dict 또는 OrgConfig Pydantic 모델)
+        knowledge_items: 지식 항목 리스트 (Dict 형태)
+        question: 사용자 질문
+        llm_client: LLM 클라이언트 (없으면 글로벌 클라이언트 사용)
+
+    Returns:
+        AnswerResult (답변 + 인용 정보)
+    """
+    # 1) 관련 지식 찾기 + 인용 생성
+    citations, snippet_text = find_relevant_knowledge(question, knowledge_items)
+
+    # 2) 답변 생성
+    answer = answer_with_twin(twin, org, snippet_text, question, llm_client)
+
+    # 3) 결과 조합
+    result = AnswerResult(
+        answer=answer,
+        routed_to=twin.name,
+        citations=citations
+    )
+
+    logger.info(
+        f"Answer with citations: twin={twin.name}, "
+        f"citations_count={len(citations)}, "
+        f"answer_length={len(answer)}"
+    )
+
+    return result
+
+
+def route_and_answer(
+    twins: Dict[str, TwinAgent],
+    org: Union[Dict[str, Any], OrgConfig],
+    knowledge_items: List[Dict[str, Any]],
+    question: str,
+    llm_client: Optional[BaseLLMClient] = None
+) -> AnswerResult:
+    """
+    질문 라우팅 + 답변 생성 통합 함수 (ADR-106)
+
+    Args:
+        twins: Twin 딕셔너리 (name -> TwinAgent)
+        org: 조직 설정
+        knowledge_items: 지식 항목 리스트
+        question: 사용자 질문
+        llm_client: LLM 클라이언트
+
+    Returns:
+        AnswerResult (답변 + 라우팅 정보 + 인용)
+    """
+    # 1) 라우팅
+    routed_name = route_agent(question)
+    twin = twins.get(routed_name)
+
+    if twin is None:
+        # Fallback to Jin Park (Backend)
+        routed_name = "Jin Park"
+        twin = twins.get(routed_name)
+        logger.warning(f"Fallback to {routed_name} (twin not found)")
+
+    # 2) 답변 + 인용 생성
+    return answer_with_citations(twin, org, knowledge_items, question, llm_client)

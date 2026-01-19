@@ -71,3 +71,6 @@ nul
 
 # Scripts (local)
 scripts/
+
+# Logs
+logs/

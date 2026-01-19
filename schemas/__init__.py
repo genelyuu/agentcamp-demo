@@ -14,6 +14,7 @@ from .organization import OrgConfig, RubricConfig
 from .session import UserSession, SessionStore, OJTTask, ChatMessage
 from .audit import AuditEvent
 from .risk import RiskEntry, Incident, RiskRegister, IncidentLog
+from .response import Citation, AnswerResult, KeywordMatch, ReviewResult
 
 __all__ = [
     # Enums
@@ -40,4 +41,9 @@ __all__ = [
     "Incident",
     "RiskRegister",
     "IncidentLog",
+    # Response (ADR-106)
+    "Citation",
+    "AnswerResult",
+    "KeywordMatch",
+    "ReviewResult",
 ]
