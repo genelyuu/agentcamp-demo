@@ -155,7 +155,8 @@ flowchart TB
 
 ### 1️⃣ Admin (회사 세팅/데이터 업로드)  
 **1) 지식화(회의/슬랙 → 규칙) = 고정(Freeze)**   
-“회의/슬랙에 흩어진 암묵지를 운영 규칙으로 고정합니다.”
+“회의/슬랙에 흩어진 암묵지를 운영 규칙으로 고정합니다.”  
+https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv_1.gif
 - 템플릿화, 표준화, 근거 인용, 반복 제거
 - Admin 업로드 후 Rule/Pitfall/Glossary Top-3 카드
 
@@ -190,8 +191,9 @@ flowchart TB
 
 
 ### 2️⃣ New Hire (OJT 실행)  
-**2) Digital Twin Q&A/제출 지원 = 실행(Execute)**   
+**2) Digital Twin Q&A/제출 지원 = 실행(Execute)**    
 “신입이 질문하면 역할별 의사결정 스타일로 답하고, 답변에 회사 규칙을 인용합니다.”  
+https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv2.gif
 - 설명 가능한 라우팅(offline/online 모두 커버), 역할 스키마 강제, 협업 모드  
 - 라우팅 근거 + 트윈별 다른 포맷(CEO/PM/FE/BE)
   
@@ -226,7 +228,8 @@ flowchart TB
   
 
 ### 3️⃣ Dashboard (HR/리드 운영)  
-**3) 루브릭 리뷰 + Dashboard = 증명(Prove)**     
+**3) 루브릭 리뷰 + Dashboard = 증명(Prove)**   
+https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv_3.gif  
 -품질 통일, 재제출 루프, 운영 가능성, 팀 리드 소진 감소  
 -원인/재현/재발방지/증거 4칸 중 빠진 칸을 집어내는 리뷰 + Dashboard 변화  
 
