@@ -2,7 +2,7 @@
 
 > **Version 1.0** | AI System Architecture Document
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://agentcamp-demo.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://agentcamp-demo-kvnmnjquyv6jfmwqhjt4f4.streamlit.app/)
 
 ---
 
