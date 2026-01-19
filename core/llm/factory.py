@@ -2,18 +2,24 @@
 core/llm/factory.py - Capability Factory
 CAP-009: Capability 인스턴스 생성 팩토리
 ADR-104: LLM Capability Interface
+LOG-005: 로깅 적용
 """
 from typing import Union
 
 from .config import Provider, CapabilityConfig, LLMConfig, get_config
 from .mock import MockRouter, MockAnswerer, MockExtractor, MockJudge
 from .protocols import RouterCapability, AnswererCapability, ExtractorCapability, JudgeCapability
+from core.logger import get_logger
+
+logger = get_logger("llm.factory")
 
 
 def create_router(config: CapabilityConfig = None) -> RouterCapability:
     """Router Capability 인스턴스 생성"""
     if config is None:
         config = get_config().router
+
+    logger.info(f"Creating Router: provider={config.provider.value}, model={config.model or 'default'}")
 
     if config.provider == Provider.MOCK:
         return MockRouter()
@@ -24,6 +30,7 @@ def create_router(config: CapabilityConfig = None) -> RouterCapability:
         from .openai import OpenAIRouter
         return OpenAIRouter(api_key=config.api_key, model=config.model)
     else:
+        logger.error(f"Unknown provider: {config.provider}")
         raise ValueError(f"Unknown provider: {config.provider}")
 
 
@@ -31,6 +38,8 @@ def create_answerer(config: CapabilityConfig = None) -> AnswererCapability:
     """Answerer Capability 인스턴스 생성"""
     if config is None:
         config = get_config().answerer
+
+    logger.info(f"Creating Answerer: provider={config.provider.value}, model={config.model or 'default'}")
 
     if config.provider == Provider.MOCK:
         return MockAnswerer()
@@ -41,6 +50,7 @@ def create_answerer(config: CapabilityConfig = None) -> AnswererCapability:
         from .openai import OpenAIAnswerer
         return OpenAIAnswerer(api_key=config.api_key, model=config.model)
     else:
+        logger.error(f"Unknown provider: {config.provider}")
         raise ValueError(f"Unknown provider: {config.provider}")
 
 
@@ -48,6 +58,8 @@ def create_extractor(config: CapabilityConfig = None) -> ExtractorCapability:
     """Extractor Capability 인스턴스 생성"""
     if config is None:
         config = get_config().extractor
+
+    logger.info(f"Creating Extractor: provider={config.provider.value}, model={config.model or 'default'}")
 
     if config.provider == Provider.MOCK:
         return MockExtractor()
@@ -58,6 +70,7 @@ def create_extractor(config: CapabilityConfig = None) -> ExtractorCapability:
         from .openai import OpenAIExtractor
         return OpenAIExtractor(api_key=config.api_key, model=config.model)
     else:
+        logger.error(f"Unknown provider: {config.provider}")
         raise ValueError(f"Unknown provider: {config.provider}")
 
 
@@ -65,6 +78,8 @@ def create_judge(config: CapabilityConfig = None) -> JudgeCapability:
     """Judge Capability 인스턴스 생성"""
     if config is None:
         config = get_config().judge
+
+    logger.info(f"Creating Judge: provider={config.provider.value}, model={config.model or 'default'}")
 
     if config.provider == Provider.MOCK:
         return MockJudge()
@@ -75,6 +90,7 @@ def create_judge(config: CapabilityConfig = None) -> JudgeCapability:
         from .openai import OpenAIJudge
         return OpenAIJudge(api_key=config.api_key, model=config.model)
     else:
+        logger.error(f"Unknown provider: {config.provider}")
         raise ValueError(f"Unknown provider: {config.provider}")
 
 
@@ -91,6 +107,7 @@ class CapabilityManager:
         self._answerer = None
         self._extractor = None
         self._judge = None
+        logger.info("CapabilityManager initialized")
 
     @property
     def router(self) -> RouterCapability:
@@ -118,6 +135,7 @@ class CapabilityManager:
 
     def reset(self) -> None:
         """캐시된 인스턴스 초기화"""
+        logger.info("CapabilityManager reset")
         self._router = None
         self._answerer = None
         self._extractor = None

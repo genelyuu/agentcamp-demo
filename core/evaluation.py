@@ -3,10 +3,14 @@ core/evaluation.py - 평가 모듈
 ARCH-004: scoring.py → core/evaluation.py 마이그레이션
 ADR-101: UI/Core Boundary Separation
 ADR-103: Evaluation Gate
+LOG-003: 로깅 적용
 """
 from typing import Any, Dict, Tuple
 
 from schemas import OJTTask
+from .logger import get_logger
+
+logger = get_logger("evaluation")
 
 
 def simple_review(task: Dict[str, Any], submission: str) -> Tuple[int, Dict[str, Any]]:
@@ -48,7 +52,14 @@ def simple_review(task: Dict[str, Any], submission: str) -> Tuple[int, Dict[str,
         "AI 멘토에게 '어떤 로그를 봐야 하나'를 질문해보세요."
     )
 
-    return min(100, score), feedback
+    final_score = min(100, score)
+    logger.info(
+        f"Review completed: score={final_score}, "
+        f"keywords_hit={hit_count}/{len(keywords)}, "
+        f"submission_len={len(submission)}"
+    )
+
+    return final_score, feedback
 
 
 def review_with_task(task: OJTTask, submission: str) -> Tuple[int, Dict[str, Any]]:

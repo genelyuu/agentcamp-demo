@@ -2,12 +2,16 @@
 core/storage.py - JSON 저장소 모듈
 ARCH-005: storage.py → core/storage.py 마이그레이션
 ADR-101: UI/Core Boundary Separation
+LOG-003: 로깅 적용
 """
 import json
 import os
 from typing import Any, Dict
 
 from schemas import OrgConfig, KnowledgeBase, SessionStore
+from .logger import get_logger
+
+logger = get_logger("storage")
 
 DATA_DIR = "data"
 ORG_PATH = os.path.join(DATA_DIR, "org.json")
@@ -39,15 +43,26 @@ def _ensure() -> None:
 def load_json(path: str) -> Dict[str, Any]:
     """JSON 파일 로드"""
     _ensure()
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            logger.debug(f"Loaded JSON: path={path}")
+            return data
+    except Exception as e:
+        logger.error(f"Failed to load JSON: path={path}, error={str(e)}")
+        raise
 
 
 def save_json(path: str, obj: Dict[str, Any]) -> None:
     """JSON 파일 저장"""
     _ensure()
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(obj, f, ensure_ascii=False, indent=2)
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(obj, f, ensure_ascii=False, indent=2)
+        logger.debug(f"Saved JSON: path={path}")
+    except Exception as e:
+        logger.error(f"Failed to save JSON: path={path}, error={str(e)}")
+        raise
 
 
 def get_org() -> Dict[str, Any]:

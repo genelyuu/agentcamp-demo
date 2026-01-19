@@ -1,6 +1,7 @@
 """
 core - AgentCamp Business Logic Layer
 ADR-101: UI/Core Boundary Separation
+LOG-002, ERR-001: Logging & Error Handling
 """
 from .api import AgentCampAPI
 from .orchestrator import route_agent, answer_with_twin, set_llm_client, get_llm_client
@@ -15,6 +16,29 @@ from .storage import (
 )
 from . import risk
 from . import incident
+from .logger import (
+    logger,
+    get_logger,
+    setup_logger,
+    log_request,
+    log_response,
+    log_llm_call,
+    log_error,
+    log_security_event,
+    log_audit,
+)
+from .errors import (
+    init_sentry,
+    capture_exception,
+    AgentCampError,
+    ValidationError,
+    LLMError,
+    SecurityError,
+    StorageError,
+    create_error_response,
+    handle_errors,
+    safe_execute,
+)
 
 __all__ = [
     # Facade API
@@ -37,4 +61,25 @@ __all__ = [
     # Risk (ADR-105)
     "risk",
     "incident",
+    # Logging (LOG-002)
+    "logger",
+    "get_logger",
+    "setup_logger",
+    "log_request",
+    "log_response",
+    "log_llm_call",
+    "log_error",
+    "log_security_event",
+    "log_audit",
+    # Errors (ERR-001)
+    "init_sentry",
+    "capture_exception",
+    "AgentCampError",
+    "ValidationError",
+    "LLMError",
+    "SecurityError",
+    "StorageError",
+    "create_error_response",
+    "handle_errors",
+    "safe_execute",
 ]

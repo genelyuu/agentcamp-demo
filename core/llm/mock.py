@@ -2,6 +2,7 @@
 core/llm/mock.py - Mock Capability 구현
 CAP-006: Capability별 Mock 구현
 ADR-104: LLM Capability Interface
+LOG-004: 로깅 적용
 """
 from typing import Any, Dict, List
 from uuid import uuid4
@@ -9,6 +10,9 @@ from datetime import datetime
 
 from agents import TwinAgent
 from schemas import KnowledgeItem, KnowledgeTag, KnowledgeSource, OJTTask
+from core.logger import get_logger
+
+logger = get_logger("llm.mock")
 
 
 # 라우팅 키워드 규칙
@@ -28,9 +32,11 @@ class MockRouter:
 
         for twin_name, keywords in _ROUTING_RULES.items():
             if any(kw in q_lower for kw in keywords):
+                logger.debug(f"MockRouter routed to {twin_name}: question='{question[:50]}...'")
                 return twin_name
 
         # 기본값: Backend (Jin Park)
+        logger.debug(f"MockRouter default to Jin Park: question='{question[:50]}...'")
         return "Jin Park"
 
 
@@ -45,6 +51,7 @@ class MockAnswerer:
         question: str
     ) -> str:
         """템플릿 기반 응답 생성"""
+        logger.debug(f"MockAnswerer generating: twin={twin.name}, question_len={len(question)}")
         lines = [
             f"[{twin.name} | {twin.role}]",
             f"스타일: {twin.style}",
@@ -84,6 +91,7 @@ class MockExtractor:
 
     def extract(self, source: str, text: str) -> List[KnowledgeItem]:
         """규칙 기반 지식 추출"""
+        logger.debug(f"MockExtractor extracting: source={source}, text_len={len(text)}")
         items = []
 
         # 소스 타입 변환
@@ -110,6 +118,7 @@ class MockExtractor:
                 created_at=datetime.utcnow()
             ))
 
+        logger.debug(f"MockExtractor extracted {len(items)} items")
         return items
 
     def _determine_tag(self, text: str) -> KnowledgeTag:
@@ -128,6 +137,7 @@ class MockJudge:
 
     def judge(self, task: OJTTask, submission: str) -> Dict[str, Any]:
         """키워드 기반 평가"""
+        logger.debug(f"MockJudge evaluating: task={task.title}, submission_len={len(submission)}")
         score = 50
         feedback: Dict[str, Any] = {
             "score": 0,
@@ -170,6 +180,7 @@ class MockJudge:
         )
 
         feedback["score"] = min(100, score)
+        logger.debug(f"MockJudge result: score={feedback['score']}")
         return feedback
 
     def _count_keyword_hits(self, keywords: List[str], submission: str) -> int:
