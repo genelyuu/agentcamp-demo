@@ -1,161 +1,234 @@
-# AgentCamp - AI-Powered OJT Digital Twins Platform
+# AgentCamp - OJT Closed-Loop System
 
-> **Version 1.0** | AI System Architecture Document
+> **Version 1.2** | AI-Powered OJT Platform with Digital Twin Agents
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://agentcamp-demo-kvnmnjquyv6jfmwqhjt4f4.streamlit.app/)
 
 ---
 
-## 1. Executive Summary
+## Overview
+
+**AgentCamp**는 회사의 일상 텍스트(회의/Slack)에서 온보딩 지식을 추출해, 신입의 질문 답변과 제출 리뷰 기준을 즉시 업데이트하고, 그 결과를 적응/리스크 지표로 운영하는 **OJT closed-loop 시스템**이다.
 
 | Item | Description |
 |------|-------------|
 | **Project Name** | AgentCamp |
-| **Version** | 1.0 |
+| **Version** | 1.2 |
 | **Type** | AI-Powered OJT (On-the-Job Training) Platform |
-| **Core Concept** | 4 Digital Twin Agents for New Hire Mentoring |
+| **Core Concept** | 4 Digital Twin Agents + Knowledge Extraction + Adaptive Scoring |
 | **Team** | Veluga |
 | **License** | MIT |
 
 ---
 
-## 2. System Architecture Overview
+## System Architecture (v1.2)
+
+![Architecture Diagram](docs/architecture/architecture_v1.2.png)
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           AgentCamp v1.0                                │
-├─────────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                    Presentation Layer                            │   │
-│  │                     (app.py - Streamlit)                         │   │
-│  │         [Admin Mode] [New Hire Mode] [Dashboard Mode]            │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│                                  │                                      │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                    Business Logic Layer                          │   │
-│  │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐             │   │
-│  │  │ orchestrator │ │   scoring    │ │  ingestion   │             │   │
-│  │  │  (Routing)   │ │ (Evaluation) │ │ (Extraction) │             │   │
-│  │  └──────────────┘ └──────────────┘ └──────────────┘             │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│                                  │                                      │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                    Integration Layer                             │   │
-│  │  ┌──────────────┐ ┌──────────────────────────────────────────┐  │   │
-│  │  │    agents    │ │              llm_client                   │  │   │
-│  │  │  (4 Twins)   │ │    [Mock] [Claude API] [OpenAI API]       │  │   │
-│  │  └──────────────┘ └──────────────────────────────────────────┘  │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│                                  │                                      │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                    Data Layer (storage.py)                       │   │
-│  │            [org.json] [knowledge.json] [sessions.json]           │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           AgentCamp v1.2                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    PRESENTATION LAYER                                  │  │
+│  │                      app.py (Streamlit UI)                             │  │
+│  │            [Admin Mode] [New Hire Mode] [Dashboard Mode]               │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                    │                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    API BOUNDARY (ADR-101)                              │  │
+│  │                    AgentCampAPI (core/api.py)                          │  │
+│  │              Single entry point for all business logic                 │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                    │                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    BUSINESS LOGIC LAYER                                │  │
+│  │  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────────────┐  │  │
+│  │  │   Orchestrator  │ │   Evaluation    │ │    Risk Management      │  │  │
+│  │  │ route_question()│ │ evaluate_task() │ │  risk.py + incident.py  │  │  │
+│  │  │answer_question()│ │evaluate_submit()│ │                         │  │  │
+│  │  └─────────────────┘ └─────────────────┘ └─────────────────────────┘  │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                    │                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    LLM CAPABILITY LAYER (ADR-104)                      │  │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐         │  │
+│  │  │  Router    │ │  Answerer  │ │ Extractor  │ │   Judge    │         │  │
+│  │  │ Capability │ │ Capability │ │ Capability │ │ Capability │         │  │
+│  │  └────────────┘ └────────────┘ └────────────┘ └────────────┘         │  │
+│  │         │              │              │              │                │  │
+│  │  ┌────────────────────────────────────────────────────────────┐      │  │
+│  │  │     Providers: [MockProvider] [ClaudeProvider] [OpenAI]    │      │  │
+│  │  └────────────────────────────────────────────────────────────┘      │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                    │                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    CROSS-CUTTING CONCERNS                              │  │
+│  │    [logger.py (Loguru)] [errors.py (Sentry)] [repository.py (DRY)]    │  │
+│  │                      [schemas/ (Pydantic)]                             │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                    │                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                    DATA LAYER                                          │  │
+│  │   [org.json] [knowledge.json] [sessions.json] [risks.json] [twins]    │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Module Responsibilities (SOLID Principles)
+## OJT Closed-Loop Flow
 
-| Module | Responsibility | Design Pattern |
-|--------|---------------|----------------|
-| `app.py` | Streamlit UI (Admin/NewHire/Dashboard) | MVC - View |
-| `agents.py` | Digital Twin persona definitions | Data Class |
-| `orchestrator.py` | Question routing + response generation | Strategy Pattern |
-| `llm_client.py` | LLM abstraction (Mock/Claude/OpenAI) | Factory + Abstract Base |
-| `storage.py` | JSON-based persistence | Repository Pattern |
-| `ingestion.py` | Text extraction from STT/Slack | ETL Pipeline |
-| `scoring.py` | Rubric-based submission evaluation | Scoring Engine |
+![Data Flow Diagram](docs/architecture/data_flow_v1.2.png)
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                        OJT CLOSED-LOOP SYSTEM                            │
+├──────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│   ┌─────────────┐      ┌─────────────────┐      ┌─────────────┐         │
+│   │  회의 STT   │─────▶│   Knowledge     │─────▶│  지식 베이스 │         │
+│   │  Slack 대화 │      │   Extraction    │      │ (자동 업데이트)│         │
+│   │  고객 미팅  │      │  (Extractor)    │      │             │         │
+│   └─────────────┘      └─────────────────┘      └──────┬──────┘         │
+│                                                        │                │
+│   ┌─────────────┐      ┌─────────────────┐             │                │
+│   │  신입 질문  │─────▶│    Router       │◀────────────┘                │
+│   │             │      │  (라우팅)       │                              │
+│   └─────────────┘      └────────┬────────┘                              │
+│                                 │                                        │
+│                        ┌────────▼────────┐      ┌─────────────┐         │
+│                        │  Digital Twin   │─────▶│  응답 생성   │         │
+│                        │   (4 Agents)    │      │ (Answerer)  │         │
+│                        └─────────────────┘      └──────┬──────┘         │
+│                                                        │                │
+│   ┌─────────────┐      ┌─────────────────┐             │                │
+│   │  업무 제출  │─────▶│     Judge       │◀────────────┘                │
+│   │             │      │  (평가/피드백)   │                              │
+│   └─────────────┘      └────────┬────────┘                              │
+│                                 │                                        │
+│                        ┌────────▼────────┐                              │
+│                        │  적응도/리스크   │──────▶ HR Dashboard          │
+│                        │     지표        │                              │
+│                        └─────────────────┘                              │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 4. Digital Twin Agents
+## Digital Twin Agents
 
-| Agent | Role | Keywords (Routing) | Communication Style |
-|-------|------|-------------------|---------------------|
-| **Sam Lee** | CEO | 우선순위, 전략, 고객, 리스크, 비용 | 짧고 결론 중심. 비용/속도/리스크를 함께 본다 |
+| Agent | Role | Routing Keywords | Communication Style |
+|-------|------|------------------|---------------------|
+| **Sam Lee** | CEO | 우선순위, 전략, 고객, 리스크, 비용 | 짧고 결론 중심. 비용/속도/리스크를 함께 판단 |
 | **JH Kim** | PM | 요구사항, 스코프, 정의, KPI, 지표 | 요구사항을 명확히 쪼개고 성공조건으로 정리 |
-| **Seul Kim** | Frontend | UI, UX, 화면, 프론트, component | 사용자 흐름, UX, 에러 케이스, 구현 난이도 동시 고려 |
+| **Seul Kim** | Frontend | UI, UX, 화면, 프론트, component | 사용자 흐름, UX, 에러 케이스, 구현 난이도 고려 |
 | **Jin Park** | Backend | Default (fallback) | 시스템 관점. 데이터/성능/안정성/배포 기준 판단 |
 
 ---
 
-## 5. Data Flow Architecture
-
-```
-┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
-│  User Input  │───▶│  orchestrator   │───▶│  route_agent │
-└──────────────┘    │   .route()      │    │   (keyword)  │
-                    └─────────────────┘    └──────┬───────┘
-                                                  │
-                    ┌─────────────────┐           ▼
-                    │   TwinAgent     │◀──────────┘
-                    │   (Selected)    │
-                    └────────┬────────┘
-                             │
-                    ┌────────▼────────┐    ┌──────────────┐
-                    │  answer_with_   │───▶│  llm_client  │
-                    │     twin()      │    │  .generate() │
-                    └────────┬────────┘    └──────────────┘
-                             │
-                    ┌────────▼────────┐    ┌──────────────┐
-                    │    Response     │───▶│   storage    │
-                    │                 │    │  .set_*()    │
-                    └─────────────────┘    └──────────────┘
-```
-
----
-
-## 6. Technology Stack
-
-| Layer | Technology | Version |
-|-------|------------|---------|
-| **Frontend** | Streamlit | >= 1.37.0 |
-| **Data Validation** | Pydantic | >= 2.8.0 |
-| **Environment** | python-dotenv | >= 1.0.0 |
-| **LLM - Claude** | anthropic | >= 0.18.0 |
-| **LLM - OpenAI** | openai | >= 1.0.0 |
-| **Data Storage** | JSON (Demo) / Supabase (Production) | - |
-| **Deployment** | Streamlit Cloud | - |
-
----
-
-## 7. LLM Integration Architecture
-
-| Provider | Model | Use Case |
-|----------|-------|----------|
-| **Mock** | - | Demo/Testing (No API key required) |
-| **Claude** | claude-sonnet-4-20250514 | Production (Anthropic API) |
-| **OpenAI** | gpt-4o | Alternative (OpenAI API) |
-
----
-
-## 8. Project Structure
+## Project Structure (v1.2)
 
 ```
 agentcamp-demo/
-├── app.py                 # Streamlit UI (Admin/NewHire/Dashboard)
-├── agents.py              # 4 Digital Twin definitions
-├── orchestrator.py        # Question routing + response generation
-├── llm_client.py          # LLM client abstraction (Mock/Claude/OpenAI)
-├── storage.py             # JSON persistence layer
-├── ingestion.py           # Text extraction pipeline
-├── scoring.py             # Rubric-based evaluation
-├── requirements.txt       # Python dependencies
-├── .gitignore             # Git ignore rules
-├── .streamlit/
-│   └── config.toml        # Streamlit configuration
-└── data/
-    ├── org.json           # Organization settings + rubric
-    ├── knowledge.json     # Extracted knowledge items
-    ├── sessions.json      # User session data
-    └── demo_inputs/       # Sample STT/Slack files
+├── app.py                      # Streamlit UI (Presentation Layer)
+├── agents.py                   # Digital Twin definitions
+├── ingestion.py                # Knowledge extraction pipeline
+│
+├── core/                       # Business Logic Layer
+│   ├── __init__.py             # Module exports
+│   ├── api.py                  # AgentCampAPI Facade (ADR-101)
+│   ├── orchestrator.py         # Question routing + response
+│   ├── evaluation.py           # Submission evaluation
+│   ├── storage.py              # JSON persistence
+│   ├── repository.py           # BaseJSONRepository (DRY)
+│   ├── risk.py                 # Risk register management
+│   ├── incident.py             # Incident logging
+│   ├── logger.py               # Loguru logging (LOG-002)
+│   ├── errors.py               # Sentry integration (ERR-001)
+│   └── llm/                    # LLM Capability Layer (ADR-104)
+│       ├── protocols.py        # Capability interfaces
+│       ├── mock.py             # Mock provider
+│       ├── claude.py           # Claude provider
+│       ├── openai.py           # OpenAI provider
+│       └── factory.py          # Provider factory
+│
+├── schemas/                    # Data Contracts (ADR-102)
+│   ├── __init__.py
+│   ├── org.py                  # OrgConfig, RubricConfig
+│   ├── knowledge.py            # KnowledgeItem, KnowledgeBase
+│   ├── session.py              # UserSession, SessionStore
+│   ├── risk.py                 # RiskItem, RiskRegister
+│   ├── evaluation.py           # EvaluationResult, ReviewFeedback
+│   └── enums.py                # Enumerations
+│
+├── tests/                      # Test Suite
+│   ├── unit/                   # Unit tests (126 tests)
+│   └── eval_suite/             # Evaluation tests
+│
+├── data/                       # JSON Storage
+│   ├── org.json
+│   ├── knowledge.json
+│   ├── sessions.json
+│   ├── risk_register.json
+│   └── incidents.json
+│
+├── docs/
+│   └── architecture/           # Architecture diagrams
+│       ├── architecture_v1.2.png
+│       ├── data_flow_v1.2.png
+│       └── architecture.mmd
+│
+├── requirements.txt
+└── CLAUDE.md                   # AI assistant guidelines
 ```
 
 ---
 
-## 9. Quick Start
+## Architecture Decision Records (ADR)
+
+| ADR | Title | Description |
+|-----|-------|-------------|
+| **ADR-101** | UI/Core Boundary Separation | AgentCampAPI as single entry point |
+| **ADR-102** | Pydantic Data Contracts | Type-safe data validation with schemas/ |
+| **ADR-104** | Protocol-based LLM Interface | Capability protocols for LLM providers |
+
+---
+
+## Module Responsibilities
+
+| Module | Layer | Responsibility |
+|--------|-------|----------------|
+| `app.py` | Presentation | Streamlit UI (Admin/NewHire/Dashboard) |
+| `core/api.py` | API Boundary | AgentCampAPI Facade |
+| `core/orchestrator.py` | Business Logic | Question routing + response generation |
+| `core/evaluation.py` | Business Logic | Submission evaluation + feedback |
+| `core/storage.py` | Data | JSON persistence with file permissions |
+| `core/llm/protocols.py` | LLM | Capability interfaces (Router, Answerer, Extractor, Judge) |
+| `core/llm/mock.py` | LLM | Mock provider for demo/testing |
+| `core/logger.py` | Cross-cutting | Structured logging with Loguru |
+| `core/errors.py` | Cross-cutting | Error handling with Sentry |
+| `schemas/` | Data Contract | Pydantic models for validation |
+
+---
+
+## Technology Stack
+
+| Layer | Technology | Purpose |
+|-------|------------|---------|
+| **Frontend** | Streamlit >= 1.37.0 | Web UI |
+| **Validation** | Pydantic >= 2.8.0 | Data contracts |
+| **Logging** | Loguru >= 0.7.0 | Structured logging |
+| **Error Tracking** | Sentry SDK | Production monitoring |
+| **LLM - Claude** | anthropic >= 0.18.0 | Anthropic API |
+| **LLM - OpenAI** | openai >= 1.0.0 | OpenAI API |
+| **Testing** | pytest >= 8.0.0 | Unit tests |
+| **Deployment** | Streamlit Cloud | Hosting |
+
+---
+
+## Quick Start
 
 ```bash
 # 1. Clone repository
@@ -167,78 +240,68 @@ pip install -r requirements.txt
 
 # 3. Run application
 streamlit run app.py
+
+# 4. Run tests (optional)
+pytest tests/ -v
 ```
 
-### LLM Configuration (Optional)
+### LLM Configuration
 
-| Step | Action |
-|------|--------|
-| 1 | Select **LLM Provider** in Sidebar: `mock` / `claude` / `openai` |
-| 2 | Enter **API Key** (not required for mock mode) |
-| 3 | Select **Model** |
-| 4 | Click **"LLM 적용"** button |
+| Provider | API Key Required | Models |
+|----------|------------------|--------|
+| **mock** | No | Demo/Testing mode |
+| **claude** | Yes | claude-sonnet-4-20250514, claude-3-5-sonnet-20241022 |
+| **openai** | Yes | gpt-4o, gpt-4o-mini |
 
 ---
 
-## 10. Key Features
+## Key Features
 
 | Mode | Feature | Description |
 |------|---------|-------------|
-| **Admin** | Knowledge Ingestion | Upload STT/Slack exports for knowledge extraction |
-| **Admin** | Rubric Setup | Define evaluation keywords (완료/지표/정의/우선순위) |
-| **New Hire** | OJT Questions | Ask questions to 4 Digital Twin mentors |
-| **New Hire** | Task Submission | Submit work for AI-powered feedback |
-| **Dashboard** | Analytics | View adaptation/risk scores per user |
-| **Dashboard** | Session History | Track question history and responses |
+| **Admin** | Knowledge Ingestion | 회의 STT/Slack 대화에서 지식 자동 추출 |
+| **Admin** | Rubric Setup | 평가 키워드 설정 (원인/재현/재발방지/로그) |
+| **New Hire** | OJT Questions | 4명의 Digital Twin 멘토에게 질문 |
+| **New Hire** | Task Submission | AI 기반 피드백과 점수 제공 |
+| **Dashboard** | Analytics | 적응도/리스크 지표 모니터링 |
+| **Dashboard** | Risk Management | 리스크 레지스터 및 인시던트 추적 |
 
 ---
 
-## 11. Design Principles
+## Design Principles
 
 | Principle | Implementation |
 |-----------|----------------|
-| **Single Responsibility** | Each module has one clear purpose |
-| **Open/Closed** | LLM providers extensible via BaseLLMClient |
-| **Liskov Substitution** | All LLM clients interchangeable |
-| **Interface Segregation** | Minimal abstract methods in BaseLLMClient |
-| **Dependency Inversion** | orchestrator depends on abstraction, not concrete LLM |
+| **Single Responsibility** | 모듈별 단일 책임 (orchestrator, evaluation, storage) |
+| **Open/Closed** | Protocol 기반 LLM 확장 (ADR-104) |
+| **Dependency Inversion** | UI → API Facade → Core 의존성 역전 |
+| **DRY** | BaseJSONRepository로 CRUD 추상화 |
+| **Type Safety** | Pydantic schemas로 데이터 검증 |
 
 ---
 
-## 12. Version History
+## Version History
 
 | Version | Date | Changes |
 |---------|------|---------|
+| **1.2** | 2026-01-19 | Architecture refactoring, ADR-101/102/104, logging, error handling, 126 unit tests |
 | **1.0** | 2026-01-19 | Initial release with 4 Digital Twins, Mock/Claude/OpenAI support |
 
 ---
 
-## 13. Roadmap
-
-| Status | Feature |
-|--------|---------|
-| ✅ | MVP Demo (Current) |
-| ⬜ | Supabase Integration (Persistent storage) |
-| ⬜ | Voice Input (Real-time STT) |
-| ⬜ | Multi-turn Conversation Memory |
-| ⬜ | Slack/Teams Integration |
-| ⬜ | API Layer (B2B SaaS) |
-
----
-
-## 14. Team
+## Team
 
 **Veluga** - AI-Powered Onboarding Solutions
 
 ---
 
-## 15. License
+## License
 
 MIT License
 
 ---
 
 <p align="center">
-    <b>Built with AI System Architecture principles for scalable OJT mentoring.</b><br>
-    <i>Version 1.0 | Principal Architect Documentation</i>
+    <b>OJT Closed-Loop System for Adaptive Onboarding</b><br>
+    <i>AgentCamp v1.2 | Veluga</i>
 </p>
