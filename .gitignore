@@ -59,5 +59,6 @@ Thumbs.db
 .claude/
 
 # Project specific
+docs/
 CLAUDE.md
 todos.md
