@@ -44,17 +44,23 @@ TWINS = get_twins()
 
 
 def ensure_user(user_id: str) -> None:
-    """사용자 세션 초기화"""
+    """사용자 세션 초기화 및 필드 보장"""
+    defaults = {
+        "name": user_id,
+        "role": "",
+        "adapt_score": 50,
+        "risk_score": 50,
+        "tasks_done": 0,
+        "questions": 0,
+        "last_task": None,
+    }
     if user_id not in SESS["users"]:
-        SESS["users"][user_id] = {
-            "name": user_id,
-            "role": "",
-            "adapt_score": 50,
-            "risk_score": 50,
-            "tasks_done": 0,
-            "questions": 0,
-            "last_task": None,
-        }
+        SESS["users"][user_id] = defaults
+    else:
+        # 기존 사용자의 누락된 필드 보장
+        for key, value in defaults.items():
+            if key not in SESS["users"][user_id]:
+                SESS["users"][user_id][key] = value
 
 
 def pick_knowledge_snippet() -> str:
