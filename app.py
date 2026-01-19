@@ -48,7 +48,7 @@ def ensure_user(user_id: str) -> None:
     if user_id not in SESS["users"]:
         SESS["users"][user_id] = {
             "name": user_id,
-            "position": "",
+            "role": "",
             "adapt_score": 50,
             "risk_score": 50,
             "tasks_done": 0,
@@ -225,8 +225,8 @@ elif mode == "New Hire(OJT)":
     st.header("New Hire - OJT 실행")
 
     user = SESS["users"][user_id]
-    position_str = f" | 직책: {user.get('position')}" if user.get("position") else ""
-    st.info(f"회사: {ORG.get('company')} | 직무: {ORG.get('role')} | 사용자: {user_id}{position_str}")
+    user_role = user.get("role") or ORG.get("role", "")
+    st.info(f"회사: {ORG.get('company')} | 직무: {user_role} | 사용자: {user_id}")
 
     # 1) 오늘의 미션
     st.subheader("1) 오늘의 미션(업무)")
