@@ -43,5 +43,6 @@ class IncidentStatus(str, Enum):
     """인시던트 상태"""
     OPEN = "open"
     INVESTIGATING = "investigating"
+    RESOLVED = "resolved"
     MITIGATED = "mitigated"
     CLOSED = "closed"
