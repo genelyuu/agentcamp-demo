@@ -28,6 +28,17 @@
 </p>
 
 ---
+<p align="center">
+  <!-- Primary: embedded HTML5 video (playable on platforms that allow it in README) -->
+  <video controls width="840" poster="https://raw.githubusercontent.com/genelyuu/agentcamp-demo/35d06ea704ff4b0556285805a9cdfe6cdafa02b3/docs/thumbnail.png" style="max-width:100%;">
+    <source src="https://raw.githubusercontent.com/genelyuu/agentcamp-demo/35d06ea704ff4b0556285805a9cdfe6cdafa02b3/docs/videos/agentcamp_demo.mp4" type="video/mp4">
+    <!-- Fallback: linked thumbnail (opens player / YouTube) -->
+    Your browser does not support the video element. 
+    <a href="https://agentcamp-demo-kvnmnjquyv6jfmwqhjt4f4.streamlit.app/">Open Demo</a> or <a href="https://youtu.be/REPLACE_WITH_VIDEO_ID">Watch on YouTube</a>.
+  </video>
+</p>
+
+
 
 > **AgentCamp**는 조직의 '일상 텍스트'를 자동으로 **회사 룰·실수 패턴·프로세스**로 정리하고,  
 > 그 지식이 **질문 답변 → 제출 리뷰 → HR 대시보드**까지 즉시 연결되는 **OJT 운영 AI**입니다.<br/>       
@@ -156,7 +167,7 @@ flowchart TB
 ### 1️⃣ Admin (회사 세팅/데이터 업로드)  
 **1) 지식화(회의/슬랙 → 규칙) = 고정(Freeze)**   
 “회의/슬랙에 흩어진 암묵지를 운영 규칙으로 고정합니다.”  
-https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv_1.gif
+![Level 1 GIF](https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv_1.gif)
 - 템플릿화, 표준화, 근거 인용, 반복 제거
 - Admin 업로드 후 Rule/Pitfall/Glossary Top-3 카드
 
@@ -189,11 +200,10 @@ https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b9116
 
 <br/>
 
-
 ### 2️⃣ New Hire (OJT 실행)  
 **2) Digital Twin Q&A/제출 지원 = 실행(Execute)**    
 “신입이 질문하면 역할별 의사결정 스타일로 답하고, 답변에 회사 규칙을 인용합니다.”  
-https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv2.gif
+![Level 2 GIF](https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv2.gif)
 - 설명 가능한 라우팅(offline/online 모두 커버), 역할 스키마 강제, 협업 모드  
 - 라우팅 근거 + 트윈별 다른 포맷(CEO/PM/FE/BE)
   
@@ -229,9 +239,9 @@ https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b9116
 
 ### 3️⃣ Dashboard (HR/리드 운영)  
 **3) 루브릭 리뷰 + Dashboard = 증명(Prove)**   
-https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv_3.gif  
+![Level 3 GIF](https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b911610c695ea/lv_3.gif)  
 -품질 통일, 재제출 루프, 운영 가능성, 팀 리드 소진 감소  
--원인/재현/재발방지/증거 4칸 중 빠진 칸을 집어내는 리뷰 + Dashboard 변화  
+-원인/재현/재발방지/증거 4칸 중 빠진 칸을 집어내는 리뷰 + Dashboard 변화
 
 <table>
   <colgroup>
@@ -325,7 +335,6 @@ https://github.com/genelyuu/agentcamp-demo/blob/dc1c3296262e35f1e8c085a8fa6b9116
 </table>
 
 ---
-
 ## Quick Start
 
 ```bash
@@ -369,9 +378,7 @@ streamlit run app.py
 
 <br/>
 
-
 ---
-
 ### AgentCamp의 ROI 
 
 <table>
@@ -408,8 +415,8 @@ streamlit run app.py
 <br/>
 
 ---
-
 <p align="center">
   <strong>Team Veluga</strong><br/>
   <sub>Built with Streamlit + Python</sub>
 </p>
+
