@@ -10,7 +10,20 @@ from agents import TwinAgent
 
 
 class BaseLLMClient(ABC):
-    """LLM 클라이언트 추상 베이스 클래스"""
+    """
+    LLM 클라이언트 추상 베이스 클래스
+
+    SOLID 원칙:
+    - SRP: LLM API 호출만 담당
+    - OCP: 새 provider 추가 시 확장 가능
+    - LSP: 모든 구현체가 동일 인터페이스 보장
+    - ISP: generate_response()와 complete() 분리
+    - DIP: 추상화에 의존
+
+    ADR-110: Offline-first + LLM-enhanced 아키텍처
+    - complete(): 스켈레톤 확장용 범용 completion
+    - generate_response(): 기존 호환용 (전체 생성)
+    """
 
     @abstractmethod
     def generate_response(
@@ -20,8 +33,45 @@ class BaseLLMClient(ABC):
         knowledge: str,
         question: str
     ) -> str:
-        """Twin 페르소나로 응답 생성"""
+        """
+        Twin 페르소나로 응답 생성 (기존 호환용)
+
+        Args:
+            twin: TwinAgent 인스턴스
+            org: 조직 설정
+            knowledge: 지식 스니펫
+            question: 사용자 질문
+
+        Returns:
+            생성된 응답 문자열
+        """
         pass
+
+    def complete(
+        self,
+        system: str,
+        user: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024
+    ) -> str:
+        """
+        범용 completion API (ADR-110: 스켈레톤 확장용)
+
+        Args:
+            system: 시스템 프롬프트
+            user: 사용자 프롬프트
+            temperature: 생성 다양성 (0.0-1.0, 낮을수록 결정적)
+            max_tokens: 최대 토큰 수
+
+        Returns:
+            생성된 응답 문자열
+
+        Raises:
+            NotImplementedError: 서브클래스에서 구현 필요
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__}은(는) complete() 메서드를 구현해야 합니다."
+        )
 
 
 class MockLLMClient(BaseLLMClient):
@@ -116,6 +166,31 @@ class MockLLMClient(BaseLLMClient):
 
         return contents.get(section, "→ (내용을 작성하세요)")
 
+    def complete(
+        self,
+        system: str,
+        user: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024
+    ) -> str:
+        """
+        Mock complete() - 스켈레톤을 그대로 반환 (ADR-110)
+
+        Offline 모드에서는 LLM 확장 없이 스켈레톤 원본 유지.
+        user 프롬프트에서 "Draft" 이후 내용을 추출하여 반환.
+        """
+        # Draft 섹션 추출 (있으면)
+        if "Draft" in user:
+            draft_start = user.find("Draft")
+            draft_content = user[draft_start:]
+            # "Draft (섹션 구조 유지 필수):" 이후 내용 추출
+            lines = draft_content.split("\n")
+            if len(lines) > 1:
+                return "\n".join(lines[1:]).strip()
+
+        # Draft가 없으면 user 프롬프트 요약 반환
+        return f"[Mock 응답]\n{user[:200]}..."
+
 
 class ClaudeLLMClient(BaseLLMClient):
     """Anthropic Claude LLM 클라이언트"""
@@ -186,6 +261,37 @@ class ClaudeLLMClient(BaseLLMClient):
 - 지정된 응답 포맷을 따르세요.
 - 구체적이고 실행 가능한 조언을 제공하세요.
 - 한국어로 답변하세요."""
+
+    def complete(
+        self,
+        system: str,
+        user: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024
+    ) -> str:
+        """
+        Claude complete() - 스켈레톤 확장용 (ADR-110)
+
+        Args:
+            system: 시스템 프롬프트 (역할/규칙 정의)
+            user: 사용자 프롬프트 (질문 + Evidence + Draft)
+            temperature: 생성 다양성 (낮을수록 결정적)
+            max_tokens: 최대 토큰 수
+
+        Returns:
+            확장된 응답 문자열
+
+        Raises:
+            Exception: API 호출 실패 시
+        """
+        response = self.client.messages.create(
+            model=self.model,
+            max_tokens=max_tokens,
+            system=system,
+            messages=[{"role": "user", "content": user}],
+            temperature=temperature
+        )
+        return response.content[0].text
 
 
 class OpenAILLMClient(BaseLLMClient):
@@ -260,6 +366,39 @@ class OpenAILLMClient(BaseLLMClient):
 - 지정된 응답 포맷을 따르세요.
 - 구체적이고 실행 가능한 조언을 제공하세요.
 - 한국어로 답변하세요."""
+
+    def complete(
+        self,
+        system: str,
+        user: str,
+        temperature: float = 0.7,
+        max_tokens: int = 1024
+    ) -> str:
+        """
+        OpenAI complete() - 스켈레톤 확장용 (ADR-110)
+
+        Args:
+            system: 시스템 프롬프트 (역할/규칙 정의)
+            user: 사용자 프롬프트 (질문 + Evidence + Draft)
+            temperature: 생성 다양성 (낮을수록 결정적)
+            max_tokens: 최대 토큰 수
+
+        Returns:
+            확장된 응답 문자열
+
+        Raises:
+            Exception: API 호출 실패 시
+        """
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user}
+            ],
+            max_tokens=max_tokens,
+            temperature=temperature
+        )
+        return response.choices[0].message.content
 
 
 def create_llm_client(

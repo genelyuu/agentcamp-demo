@@ -3,6 +3,8 @@ app.py - Streamlit UI 메인 엔트리포인트
 책임: Admin / New Hire / Dashboard 모드 UI 렌더링
 ADR-101: UI/Core Boundary Separation - UI-only 레이어
 ADR-106: Citation Transparency - 지식 인용 표시
+ADR-108: Explainable Routing - 라우팅 근거 표시
+ADR-109: Structured Rubric Scoring - 4칸 체크리스트 표시
 """
 import streamlit as st
 
@@ -14,11 +16,15 @@ from core import (
     get_sessions,
     set_sessions,
     route_agent,
+    route_agent_with_reason,
     answer_with_twin,
     route_and_answer,
     set_llm_client,
     simple_review,
     review_with_evidence,
+    rubric_review,
+    get_active_knowledge_top3,
+    render_twin_answer,
 )
 from agents import get_twins
 from ingestion import extract_knowledge
@@ -184,6 +190,27 @@ if mode == "Admin(회사 세팅)":
             st.write(new_items[:5])
 
     st.divider()
+    st.subheader("📚 Active Knowledge Top-3 (KNOW-008)")
+    st.caption("각 태그별 최근 1개 지식을 표시합니다. 질문 응답 시 우선 참조됩니다.")
+
+    knowledge_items = KNOW.get("items", [])
+    if knowledge_items:
+        active_top3 = get_active_knowledge_top3(knowledge_items)
+        if active_top3:
+            cols = st.columns(len(active_top3))
+            for idx, (tag, items) in enumerate(active_top3.items()):
+                with cols[idx]:
+                    st.markdown(f"**{tag.upper()}**")
+                    for item in items:
+                        text_preview = item.get("text", "")[:80]
+                        source = item.get("source", "unknown")
+                        st.caption(f"[{source}] {text_preview}...")
+        else:
+            st.info("태그별 지식이 아직 없습니다.")
+    else:
+        st.info("저장된 지식이 없습니다. 위에서 텍스트를 업로드해주세요.")
+
+    st.divider()
     st.subheader("현재 지식(최근 10개)")
     for it in KNOW.get("items", [])[-10:]:
         st.write(f"- [{it['source']}/{it['tag']}] {it['text']}")
@@ -228,13 +255,46 @@ elif mode == "New Hire(OJT)":
     if st.button("질문 보내기") and q.strip():
         user["questions"] += 1
 
+        # ADR-108: Explainable Routing - 라우팅 근거 포함
+        routing_result = route_agent_with_reason(q, TWINS)
+
         # ADR-106: Citation Transparency - 인용 정보 포함 응답
         knowledge_items = KNOW.get("items", [])
         result = route_and_answer(TWINS, ORG, knowledge_items, q)
 
         set_sessions(SESS)
-        st.markdown(f"### 라우팅: **{result.routed_to}**")
-        st.code(result.answer)
+
+        # 라우팅 정보 표시 (ADR-108)
+        st.markdown(f"### 라우팅: **{result.routed_to}** ({routing_result.confidence_percent}% 신뢰도)")
+
+        # 라우팅 근거 표시
+        with st.expander("🎯 라우팅 근거 (ADR-108)", expanded=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**매칭된 키워드**")
+                if routing_result.matched_keywords:
+                    for kw in routing_result.matched_keywords[:5]:
+                        st.markdown(f"- `{kw}`")
+                else:
+                    st.caption("매칭된 키워드 없음 (기본 라우팅)")
+
+            with col2:
+                st.markdown("**대안 후보**")
+                if routing_result.has_alternatives:
+                    for alt in routing_result.alternatives[:3]:
+                        st.markdown(f"- {alt.name} ({alt.confidence_percent}%)")
+                else:
+                    st.caption("대안 없음")
+
+            st.caption(f"📋 {routing_result.format_reason_display()}")
+
+        # 트윈별 구조화된 응답 (ADR-108)
+        twin = TWINS.get(result.routed_to)
+        if twin:
+            structured_answer = render_twin_answer(twin, result.answer)
+            st.markdown(structured_answer.to_markdown())
+        else:
+            st.code(result.answer)
 
         # 참고된 지식 표시 (ADR-106)
         if result.has_citations:
@@ -257,30 +317,50 @@ elif mode == "New Hire(OJT)":
         # ADR-106: Citation Transparency - 키워드 매칭 근거 포함 리뷰
         review_result = review_with_evidence(task, submission)
 
+        # ADR-109: Structured Rubric Scoring - 4칸 구조 평가
+        rubric_result = rubric_review(submission)
+
         user["tasks_done"] += 1
         user["adapt_score"] = min(100, user["adapt_score"] + int(review_result.score * 0.1))
         user["risk_score"] = max(0, user["risk_score"] - int(review_result.score * 0.05))
         set_sessions(SESS)
 
-        st.success(f"리뷰 점수: **{review_result.score}점**")
+        # 점수 및 등급 표시
+        st.success(f"리뷰 점수: **{rubric_result.total_score}점** (등급: {rubric_result.grade})")
 
-        col1, col2 = st.columns(2)
-        with col1:
-            st.write("**강점**")
-            for s in review_result.strengths:
-                st.write(f"- {s}")
-        with col2:
-            st.write("**개선점**")
-            for imp in review_result.improvements:
-                st.write(f"- {imp}")
+        # 4칸 체크리스트 표시 (ADR-109)
+        st.markdown("### 📋 4칸 구조 평가 (ADR-109)")
+        cols = st.columns(4)
 
-        st.write("**다음 스텝**")
-        st.write(review_result.next_step)
+        for idx, col_data in enumerate(rubric_result.columns):
+            with cols[idx]:
+                # 칸 헤더
+                status_icon = "✅" if col_data.score >= 20 else "⚠️" if col_data.score >= 10 else "❌"
+                st.markdown(f"**{col_data.display_name}** {status_icon}")
+                st.metric("점수", f"{col_data.score}/25")
 
-        # 키워드 매칭 상세 (ADR-106)
+                # 체크리스트 항목
+                for item in col_data.items:
+                    if item.checked:
+                        st.markdown(f"✅ {item.label}")
+                    else:
+                        st.markdown(f"❌ {item.label}")
+
+        # 종합 피드백
+        st.divider()
+        st.markdown("### 종합 피드백")
+        st.info(rubric_result.overall_feedback)
+
+        # 누락된 요소
+        if rubric_result.missing_elements:
+            with st.expander("⚠️ 누락된 요소", expanded=True):
+                for elem in rubric_result.missing_elements:
+                    st.markdown(f"- {elem}")
+
+        # 기존 키워드 매칭 상세 (ADR-106)
         with st.expander(
             f"🔍 키워드 매칭 상세 ({review_result.matched_count}/{review_result.total_keywords})",
-            expanded=True
+            expanded=False
         ):
             for km in review_result.keyword_matches:
                 if km.matched:
@@ -289,6 +369,9 @@ elif mode == "New Hire(OJT)":
                         st.caption(f"   → \"{km.context}\"")
                 else:
                     st.markdown(f"❌ **{km.keyword}** - 누락")
+
+        st.write("**다음 스텝**")
+        st.write(review_result.next_step)
 
 
 # ============================================================

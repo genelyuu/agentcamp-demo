@@ -1,6 +1,8 @@
 """
 schemas - Pydantic Data Contracts
 ADR-102: Data Contract with Pydantic Schemas
+ADR-108: Explainable Routing
+ADR-109: Structured Rubric Scoring
 """
 from .enums import (
     KnowledgeTag,
@@ -15,6 +17,14 @@ from .session import UserSession, SessionStore, OJTTask, ChatMessage
 from .audit import AuditEvent
 from .risk import RiskEntry, Incident, RiskRegister, IncidentLog
 from .response import Citation, AnswerResult, KeywordMatch, ReviewResult
+from .routing import Candidate, RoutingResult
+from .rubric import (
+    ChecklistItem,
+    RubricColumn,
+    RubricReviewResult,
+    calculate_grade,
+    create_empty_rubric_result,
+)
 
 __all__ = [
     # Enums
@@ -46,4 +56,13 @@ __all__ = [
     "AnswerResult",
     "KeywordMatch",
     "ReviewResult",
+    # Routing (ADR-108)
+    "Candidate",
+    "RoutingResult",
+    # Rubric (ADR-109)
+    "ChecklistItem",
+    "RubricColumn",
+    "RubricReviewResult",
+    "calculate_grade",
+    "create_empty_rubric_result",
 ]
