@@ -2,117 +2,98 @@
 core/risk.py - 리스크 레지스터 CRUD API
 RISK-006: Risk Register CRUD API
 ADR-105: Risk Register
+DUP-002: BaseJSONRepository 활용
 """
-import json
 import os
 from typing import List, Optional
 from datetime import datetime
 
 from schemas import RiskEntry, RiskRegister, RiskCategory
+from .repository import BaseJSONRepository
 
 # 파일 경로
 RISK_PATH = os.path.join("data", "risk_register.json")
 
+# Repository 인스턴스 (내부 구현)
+_repo = BaseJSONRepository[RiskEntry](
+    path=RISK_PATH,
+    container_cls=RiskRegister,
+    item_key="risks"
+)
+
+
+# ============================================================
+# Legacy Functions (Facade) - 외부 API 호환성 유지
+# ============================================================
 
 def _ensure_file() -> None:
-    """파일 존재 확인 및 생성"""
-    os.makedirs("data", exist_ok=True)
-    if not os.path.exists(RISK_PATH):
-        with open(RISK_PATH, "w", encoding="utf-8") as f:
-            json.dump({"risks": []}, f, ensure_ascii=False, indent=2)
+    """파일 존재 확인 및 생성 (Legacy 호환)"""
+    _repo._ensure_file()
 
 
 def _load_register() -> RiskRegister:
-    """리스크 레지스터 로드"""
-    _ensure_file()
-    with open(RISK_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return RiskRegister(**data)
+    """리스크 레지스터 로드 (Legacy 호환)"""
+    return _repo._load()
 
 
 def _save_register(register: RiskRegister) -> None:
-    """리스크 레지스터 저장"""
-    _ensure_file()
-    with open(RISK_PATH, "w", encoding="utf-8") as f:
-        json.dump(register.model_dump(mode="json"), f, ensure_ascii=False, indent=2)
+    """리스크 레지스터 저장 (Legacy 호환)"""
+    _repo._save(register)
 
 
+# ============================================================
 # CRUD Operations
+# ============================================================
 
 def get_all_risks() -> List[RiskEntry]:
     """모든 리스크 조회"""
-    register = _load_register()
-    return register.risks
+    return _repo.get_all()
 
 
 def get_risk(risk_id: str) -> Optional[RiskEntry]:
     """특정 리스크 조회"""
-    risks = get_all_risks()
-    for risk in risks:
-        if risk.risk_id == risk_id:
-            return risk
-    return None
+    return _repo.get_by_id(risk_id, id_field="risk_id")
 
 
 def create_risk(risk: RiskEntry) -> RiskEntry:
     """리스크 생성"""
-    register = _load_register()
-    register.risks.append(risk)
-    _save_register(register)
-    return risk
+    return _repo.create(risk)
 
 
 def update_risk(risk_id: str, updates: dict) -> Optional[RiskEntry]:
     """리스크 수정"""
-    register = _load_register()
-
-    for i, risk in enumerate(register.risks):
-        if risk.risk_id == risk_id:
-            # 기존 데이터에 업데이트 적용
-            risk_dict = risk.model_dump()
-            risk_dict.update(updates)
-            risk_dict["updated_at"] = datetime.utcnow().isoformat()
-
-            # 새 객체 생성
-            updated_risk = RiskEntry(**risk_dict)
-            register.risks[i] = updated_risk
-            _save_register(register)
-            return updated_risk
-
-    return None
+    # updated_at 자동 갱신
+    updates["updated_at"] = datetime.utcnow().isoformat()
+    return _repo.update(
+        item_id=risk_id,
+        updates=updates,
+        id_field="risk_id",
+        item_cls=RiskEntry
+    )
 
 
 def delete_risk(risk_id: str) -> bool:
     """리스크 삭제"""
-    register = _load_register()
-    original_count = len(register.risks)
-
-    register.risks = [r for r in register.risks if r.risk_id != risk_id]
-
-    if len(register.risks) < original_count:
-        _save_register(register)
-        return True
-    return False
+    return _repo.delete(risk_id, id_field="risk_id")
 
 
+# ============================================================
 # Query Operations
+# ============================================================
 
 def get_risks_by_category(category: RiskCategory) -> List[RiskEntry]:
     """카테고리별 리스크 조회"""
-    risks = get_all_risks()
-    return [r for r in risks if r.category == category]
+    return _repo.filter(lambda r: r.category == category)
 
 
 def get_risks_by_status(status: str) -> List[RiskEntry]:
     """상태별 리스크 조회"""
-    risks = get_all_risks()
-    return [r for r in risks if r.status == status]
+    return _repo.filter(lambda r: r.status == status)
 
 
 def get_high_risks(threshold: int = 12) -> List[RiskEntry]:
     """높은 리스크 조회 (score >= threshold)"""
-    risks = get_all_risks()
-    return [r for r in risks if r.risk_score >= threshold]
+    return _repo.filter(lambda r: r.risk_score >= threshold)
 
 
 def get_risk_summary() -> dict:

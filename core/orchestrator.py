@@ -3,12 +3,14 @@ core/orchestrator.py - 질문 라우팅 & 답변 생성 모듈
 ARCH-003: orchestrator.py → core/ 마이그레이션
 ADR-101: UI/Core Boundary Separation
 LOG-003: 로깅 적용
+ERR-TYPE-001: 타입 힌트 강화 (Dict → Union[Dict, OrgConfig])
 """
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from agents import TwinAgent
 from llm_client import BaseLLMClient, MockLLMClient, create_llm_client
+from schemas import OrgConfig
 
 from .logger import get_logger
 
@@ -73,7 +75,7 @@ def route_agent(question: str) -> str:
 
 def answer_with_twin(
     twin: TwinAgent,
-    org: Dict[str, Any],
+    org: Union[Dict[str, Any], OrgConfig],
     knowledge_snippets: str,
     question: str,
     llm_client: Optional[BaseLLMClient] = None
@@ -83,7 +85,7 @@ def answer_with_twin(
 
     Args:
         twin: TwinAgent 인스턴스
-        org: 조직 설정
+        org: 조직 설정 (Dict 또는 OrgConfig Pydantic 모델)
         knowledge_snippets: 관련 지식 스니펫
         question: 사용자 질문
         llm_client: LLM 클라이언트 (없으면 글로벌 클라이언트 사용)
@@ -91,6 +93,9 @@ def answer_with_twin(
     Returns:
         답변 문자열
     """
+    # OrgConfig를 Dict로 변환 (LLM 클라이언트 호환성)
+    if isinstance(org, OrgConfig):
+        org = org.model_dump()
     client = llm_client or _llm_client
     client_name = type(client).__name__
 

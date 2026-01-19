@@ -2,6 +2,7 @@
 core/llm/claude.py - Claude Capability 구현
 CAP-007: Capability별 Claude 구현
 ADR-104: LLM Capability Interface
+SEC-001: API 오류 메시지 일반화
 """
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -9,6 +10,7 @@ from datetime import datetime
 
 from agents import TwinAgent
 from schemas import KnowledgeItem, KnowledgeTag, KnowledgeSource, OJTTask
+from .error_handler import format_error_response, sanitize_error
 
 
 class ClaudeRouter:
@@ -85,7 +87,7 @@ class ClaudeAnswerer:
             )
             return response.content[0].text
         except Exception as e:
-            return f"[Claude API 오류] {str(e)}"
+            return format_error_response(e, "claude")
 
     def _build_system_prompt(
         self,
@@ -241,7 +243,7 @@ NEXT_STEP: 다음 스텝 안내
             return {
                 "score": 50,
                 "strengths": [],
-                "improvements": [f"평가 중 오류 발생: {str(e)}"],
+                "improvements": [f"평가 중 오류 발생: {sanitize_error(e)}"],
                 "next_step": "다시 시도해주세요."
             }
 

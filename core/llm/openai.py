@@ -2,6 +2,7 @@
 core/llm/openai.py - OpenAI Capability 구현
 CAP-008: Capability별 OpenAI 구현
 ADR-104: LLM Capability Interface
+SEC-002: API 오류 메시지 일반화
 """
 from typing import Any, Dict, List
 from uuid import uuid4
@@ -9,6 +10,7 @@ from datetime import datetime
 
 from agents import TwinAgent
 from schemas import KnowledgeItem, KnowledgeTag, KnowledgeSource, OJTTask
+from .error_handler import format_error_response, sanitize_error
 
 
 class OpenAIRouter:
@@ -91,7 +93,7 @@ class OpenAIAnswerer:
             )
             return response.choices[0].message.content
         except Exception as e:
-            return f"[OpenAI API 오류] {str(e)}"
+            return format_error_response(e, "openai")
 
     def _build_system_prompt(
         self,
@@ -252,7 +254,7 @@ NEXT_STEP: 다음 스텝 안내
             return {
                 "score": 50,
                 "strengths": [],
-                "improvements": [f"평가 중 오류 발생: {str(e)}"],
+                "improvements": [f"평가 중 오류 발생: {sanitize_error(e)}"],
                 "next_step": "다시 시도해주세요."
             }
 

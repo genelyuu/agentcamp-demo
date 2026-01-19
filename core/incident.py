@@ -2,64 +2,62 @@
 core/incident.py - 인시던트 로그 CRUD API
 RISK-007: Incident Log CRUD API
 ADR-105: Risk Register
+DUP-002: BaseJSONRepository 활용
 """
-import json
 import os
 from typing import List, Optional
 from datetime import datetime
 
 from schemas import Incident, IncidentLog, IncidentStatus, RiskCategory, Severity
+from .repository import BaseJSONRepository
 
 # 파일 경로
 INCIDENT_PATH = os.path.join("data", "incidents.json")
 
+# Repository 인스턴스 (내부 구현)
+_repo = BaseJSONRepository[Incident](
+    path=INCIDENT_PATH,
+    container_cls=IncidentLog,
+    item_key="incidents"
+)
+
+
+# ============================================================
+# Legacy Functions (Facade) - 외부 API 호환성 유지
+# ============================================================
 
 def _ensure_file() -> None:
-    """파일 존재 확인 및 생성"""
-    os.makedirs("data", exist_ok=True)
-    if not os.path.exists(INCIDENT_PATH):
-        with open(INCIDENT_PATH, "w", encoding="utf-8") as f:
-            json.dump({"incidents": []}, f, ensure_ascii=False, indent=2)
+    """파일 존재 확인 및 생성 (Legacy 호환)"""
+    _repo._ensure_file()
 
 
 def _load_log() -> IncidentLog:
-    """인시던트 로그 로드"""
-    _ensure_file()
-    with open(INCIDENT_PATH, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    return IncidentLog(**data)
+    """인시던트 로그 로드 (Legacy 호환)"""
+    return _repo._load()
 
 
 def _save_log(log: IncidentLog) -> None:
-    """인시던트 로그 저장"""
-    _ensure_file()
-    with open(INCIDENT_PATH, "w", encoding="utf-8") as f:
-        json.dump(log.model_dump(mode="json"), f, ensure_ascii=False, indent=2)
+    """인시던트 로그 저장 (Legacy 호환)"""
+    _repo._save(log)
 
 
+# ============================================================
 # CRUD Operations
+# ============================================================
 
 def get_all_incidents() -> List[Incident]:
     """모든 인시던트 조회"""
-    log = _load_log()
-    return log.incidents
+    return _repo.get_all()
 
 
 def get_incident(incident_id: str) -> Optional[Incident]:
     """특정 인시던트 조회"""
-    incidents = get_all_incidents()
-    for incident in incidents:
-        if incident.incident_id == incident_id:
-            return incident
-    return None
+    return _repo.get_by_id(incident_id, id_field="incident_id")
 
 
 def create_incident(incident: Incident) -> Incident:
     """인시던트 생성"""
-    log = _load_log()
-    log.incidents.append(incident)
-    _save_log(log)
-    return incident
+    return _repo.create(incident)
 
 
 def log_incident(
@@ -88,27 +86,22 @@ def update_incident_status(
     rca: Optional[str] = None
 ) -> Optional[Incident]:
     """인시던트 상태 변경"""
-    log = _load_log()
+    updates = {"status": status}
 
-    for i, incident in enumerate(log.incidents):
-        if incident.incident_id == incident_id:
-            incident_dict = incident.model_dump()
-            incident_dict["status"] = status
+    if mitigation:
+        updates["mitigation"] = mitigation
+    if rca:
+        updates["rca"] = rca
 
-            if mitigation:
-                incident_dict["mitigation"] = mitigation
-            if rca:
-                incident_dict["rca"] = rca
+    if status == IncidentStatus.RESOLVED:
+        updates["resolved_at"] = datetime.utcnow().isoformat()
 
-            if status == IncidentStatus.RESOLVED:
-                incident_dict["resolved_at"] = datetime.utcnow().isoformat()
-
-            updated_incident = Incident(**incident_dict)
-            log.incidents[i] = updated_incident
-            _save_log(log)
-            return updated_incident
-
-    return None
+    return _repo.update(
+        item_id=incident_id,
+        updates=updates,
+        id_field="incident_id",
+        item_cls=Incident
+    )
 
 
 def resolve_incident(
@@ -125,24 +118,23 @@ def resolve_incident(
     )
 
 
+# ============================================================
 # Query Operations
+# ============================================================
 
 def get_open_incidents() -> List[Incident]:
     """열린 인시던트 조회"""
-    incidents = get_all_incidents()
-    return [i for i in incidents if i.status == IncidentStatus.OPEN]
+    return _repo.filter(lambda i: i.status == IncidentStatus.OPEN)
 
 
 def get_incidents_by_category(category: RiskCategory) -> List[Incident]:
     """카테고리별 인시던트 조회"""
-    incidents = get_all_incidents()
-    return [i for i in incidents if i.category == category]
+    return _repo.filter(lambda i: i.category == category)
 
 
 def get_incidents_by_severity(severity: Severity) -> List[Incident]:
     """심각도별 인시던트 조회"""
-    incidents = get_all_incidents()
-    return [i for i in incidents if i.severity == severity]
+    return _repo.filter(lambda i: i.severity == severity)
 
 
 def get_incident_summary() -> dict:
@@ -158,8 +150,8 @@ def get_incident_summary() -> dict:
             "by_category": {}
         }
 
-    open_count = len([i for i in incidents if i.status == IncidentStatus.OPEN])
-    resolved_count = len([i for i in incidents if i.status == IncidentStatus.RESOLVED])
+    open_count = _repo.count(lambda i: i.status == IncidentStatus.OPEN)
+    resolved_count = _repo.count(lambda i: i.status == IncidentStatus.RESOLVED)
 
     by_severity = {}
     by_category = {}

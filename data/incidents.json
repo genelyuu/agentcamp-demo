@@ -1,3 +1,17 @@
 {
-  "incidents": []
+  "incidents": [
+    {
+      "incident_id": "INC-252B59",
+      "timestamp": "2026-01-19T06:22:21.893011",
+      "category": "injection",
+      "severity": "medium",
+      "description": "Test injection attempt detected",
+      "trigger": "User input pattern match",
+      "status": "open",
+      "mitigation": null,
+      "rca": null,
+      "related_risk_id": null,
+      "resolved_at": null
+    }
+  ]
 }

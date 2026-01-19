@@ -4,8 +4,9 @@ ARCH-004: scoring.py → core/evaluation.py 마이그레이션
 ADR-101: UI/Core Boundary Separation
 ADR-103: Evaluation Gate
 LOG-003: 로깅 적용
+ERR-TYPE-002: 타입 힌트 강화 (Dict → Union[Dict, OJTTask])
 """
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Tuple, Union
 
 from schemas import OJTTask
 from .logger import get_logger
@@ -13,17 +14,29 @@ from .logger import get_logger
 logger = get_logger("evaluation")
 
 
-def simple_review(task: Dict[str, Any], submission: str) -> Tuple[int, Dict[str, Any]]:
+def simple_review(
+    task: Union[Dict[str, Any], OJTTask],
+    submission: str
+) -> Tuple[int, Dict[str, Any]]:
     """
     루브릭 기반 제출물 평가
 
     Args:
-        task: 미션 정보 (acceptance_keywords 포함)
+        task: 미션 정보 (Dict 또는 OJTTask Pydantic 모델)
         submission: 제출 내용
 
     Returns:
         (점수, 피드백 딕셔너리)
     """
+    # OJTTask를 Dict로 변환
+    if isinstance(task, OJTTask):
+        task = {
+            "title": task.title,
+            "context": task.context,
+            "deliverable": task.deliverable,
+            "acceptance_keywords": task.acceptance_keywords
+        }
+
     score = 50
     feedback: Dict[str, Any] = {
         "strengths": [],

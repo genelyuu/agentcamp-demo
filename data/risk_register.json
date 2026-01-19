@@ -12,7 +12,11 @@
         "사용자에게 검증 권고 메시지 표시"
       ],
       "owner": "AI Team",
-      "status": "mitigated"
+      "status": "mitigated",
+      "created_at": "2026-01-19T07:06:30.632409",
+      "updated_at": "2026-01-19T07:06:30.632410",
+      "risk_score": 16,
+      "risk_level": "high"
     },
     {
       "risk_id": "R-002",
@@ -26,7 +30,11 @@
         "PII 탐지 시 경고 및 마스킹"
       ],
       "owner": "Security Team",
-      "status": "mitigated"
+      "status": "mitigated",
+      "created_at": "2026-01-19T07:06:30.632415",
+      "updated_at": "2026-01-19T07:06:30.632415",
+      "risk_score": 15,
+      "risk_level": "high"
     },
     {
       "risk_id": "R-003",
@@ -40,7 +48,11 @@
         "시스템 프롬프트 분리"
       ],
       "owner": "Security Team",
-      "status": "mitigated"
+      "status": "mitigated",
+      "created_at": "2026-01-19T07:06:30.632418",
+      "updated_at": "2026-01-19T07:06:30.632419",
+      "risk_score": 12,
+      "risk_level": "high"
     },
     {
       "risk_id": "R-004",
@@ -54,7 +66,11 @@
         "사용자에게 라우팅 결과 표시"
       ],
       "owner": "AI Team",
-      "status": "open"
+      "status": "open",
+      "created_at": "2026-01-19T07:06:30.632422",
+      "updated_at": "2026-01-19T07:06:30.632422",
+      "risk_score": 6,
+      "risk_level": "medium"
     },
     {
       "risk_id": "R-005",
@@ -67,7 +83,11 @@
         "사용자에게 다중 관점 확인 권고"
       ],
       "owner": "AI Team",
-      "status": "accepted"
+      "status": "accepted",
+      "created_at": "2026-01-19T07:06:30.632424",
+      "updated_at": "2026-01-19T07:06:30.632425",
+      "risk_score": 9,
+      "risk_level": "medium"
     },
     {
       "risk_id": "R-006",
@@ -80,7 +100,11 @@
         "업무 관련 질문으로 유도"
       ],
       "owner": "Product Team",
-      "status": "mitigated"
+      "status": "mitigated",
+      "created_at": "2026-01-19T07:06:30.632427",
+      "updated_at": "2026-01-19T07:06:30.632428",
+      "risk_score": 4,
+      "risk_level": "low"
     }
   ]
 }

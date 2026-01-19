@@ -1,3 +1,23 @@
 {
-  "users": {}
+  "users": {
+    "minsu": {
+      "user_id": "minsu",
+      "name": "minsu",
+      "adapt_score": 50,
+      "risk_score": 50,
+      "tasks_done": 0,
+      "questions": 1,
+      "last_task": {
+        "title": "로그 기반 장애 원인 요약",
+        "context": "최근 배포 이후 500 에러가 증가. 원인을 추정하고 재발 방지안을 제시.",
+        "deliverable": "원인(가설) 1개 이상 + 재현 조건 + 재발 방지 1개 + 참고 로그 키워드",
+        "acceptance_keywords": [
+          "원인",
+          "재현",
+          "재발방지",
+          "로그"
+        ]
+      }
+    }
+  }
 }

@@ -2,16 +2,21 @@
 core/api.py - UI/Core 경계 계약 (Facade)
 ARCH-002: AgentCampAPI Boundary Contract
 ADR-101: UI/Core Boundary Separation
+ERR-API-001~008: Instance-based API 추가
 
 이 모듈은 app.py(UI)와 core 비즈니스 로직 사이의
 유일한 진입점 역할을 수행합니다.
 """
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
+from uuid import uuid4
 
 from agents import TwinAgent, get_twins
 from schemas import (
     OrgConfig,
     KnowledgeBase,
+    KnowledgeItem,
+    KnowledgeTag,
+    KnowledgeSource,
     UserSession,
     SessionStore,
     OJTTask,
@@ -48,7 +53,180 @@ class AgentCampAPI:
 
     ADR-101에 따른 단일 진입점으로,
     UI 레이어는 이 클래스를 통해서만 비즈니스 로직에 접근합니다.
+
+    Instance-based API와 Static API 모두 지원합니다.
     """
+
+    # ===================
+    # Instance Initialization (ERR-API-001, ERR-API-002)
+    # ===================
+
+    def __init__(self) -> None:
+        """인스턴스 초기화 - twins, org 속성 설정"""
+        self.twins: Dict[str, TwinAgent] = get_twins()
+        self.org: Dict[str, Any] = get_org()
+        self._knowledge: Dict[str, Any] = get_knowledge()
+
+    # ===================
+    # Instance Methods - Chat (ERR-API-003)
+    # ===================
+
+    def ask(self, question: str) -> Dict[str, Any]:
+        """
+        질문에 대한 답변을 반환하는 convenience method
+
+        Args:
+            question: 사용자 질문
+
+        Returns:
+            {"twin": twin_name, "answer": answer_text}
+        """
+        twin_name = route_agent(question)
+        twin = self.twins.get(twin_name)
+
+        if twin is None:
+            twin = self.twins.get("Jin Park")  # Fallback
+
+        # 지식 스니펫 조회
+        knowledge_snippets = self.get_knowledge_snippets(question)
+
+        # 답변 생성
+        answer = answer_with_twin(twin, self.org, knowledge_snippets, question)
+
+        return {
+            "twin": twin_name,
+            "answer": answer
+        }
+
+    # ===================
+    # Instance Methods - Review (ERR-API-004, ERR-API-005)
+    # ===================
+
+    def review_submission(
+        self,
+        task: Dict[str, Any],
+        submission: str
+    ) -> Dict[str, Any]:
+        """
+        제출물 평가 (Dict task 기반)
+
+        Args:
+            task: 태스크 정보 dict (title, acceptance_keywords 등)
+            submission: 제출물 텍스트
+
+        Returns:
+            {"score": int, "feedback": dict}
+        """
+        score, feedback = simple_review(task, submission)
+        return {
+            "score": score,
+            "feedback": feedback
+        }
+
+    def review_with_task(
+        self,
+        task: OJTTask,
+        submission: str
+    ) -> Dict[str, Any]:
+        """
+        제출물 평가 (OJTTask 모델 기반)
+
+        Args:
+            task: OJTTask Pydantic 모델
+            submission: 제출물 텍스트
+
+        Returns:
+            {"score": int, "feedback": dict}
+        """
+        score, feedback = review_with_task(task, submission)
+        return {
+            "score": score,
+            "feedback": feedback
+        }
+
+    # ===================
+    # Instance Methods - Twins (ERR-API-006)
+    # ===================
+
+    def list_twins(self) -> List[TwinAgent]:
+        """
+        모든 Digital Twin 목록 반환
+
+        Returns:
+            TwinAgent 리스트
+        """
+        return list(self.twins.values())
+
+    # ===================
+    # Instance Methods - Knowledge (ERR-API-007, ERR-API-008)
+    # ===================
+
+    def get_knowledge_snippets(self, query: str) -> str:
+        """
+        질문과 관련된 지식 스니펫 조회
+
+        Args:
+            query: 검색 쿼리
+
+        Returns:
+            관련 지식 스니펫 문자열
+        """
+        knowledge = get_knowledge()
+        items = knowledge.get("items", [])
+
+        if not items:
+            return ""
+
+        # 간단한 키워드 매칭으로 관련 스니펫 필터링
+        query_lower = query.lower()
+        relevant = []
+
+        for item in items:
+            text = item.get("text", "")
+            if any(word in text.lower() for word in query_lower.split()):
+                relevant.append(text)
+
+        # 최대 3개 스니펫 반환
+        return "\n".join(relevant[:3])
+
+    def add_knowledge(
+        self,
+        source: str,
+        text: str,
+        tag: str = "rule"
+    ) -> Dict[str, Any]:
+        """
+        지식 항목 추가
+
+        Args:
+            source: 지식 소스 (meeting_stt, slack_discord, client_stt)
+            text: 지식 내용
+            tag: 지식 태그 (rule, pitfall, glossary, process)
+
+        Returns:
+            {"id": str, "count": int} 추가된 항목 정보
+        """
+        knowledge = get_knowledge()
+        items = knowledge.get("items", [])
+
+        # 새 항목 생성
+        new_id = f"K-{uuid4().hex[:8].upper()}"
+        new_item = {
+            "id": new_id,
+            "text": text,
+            "tag": tag,
+            "source": source,
+            "created_at": None  # storage에서 처리
+        }
+
+        items.append(new_item)
+        knowledge["items"] = items
+        set_knowledge(knowledge)
+
+        return {
+            "id": new_id,
+            "count": len(items)
+        }
 
     # ===================
     # LLM 클라이언트 설정

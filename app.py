@@ -130,7 +130,7 @@ if mode == "Admin(회사 세팅)":
 
     with col1:
         company = st.text_input("회사명", value=ORG.get("company", "Veluga"))
-        role = st.text_input("OJT 직무", value=ORG.get("role", "Backend Engineer"))
+        role = st.text_input("OJT 직무", value=ORG.get("role", "Project Manager"))
         tools = st.text_input(
             "도구(콤마로)",
             value=",".join(ORG.get("tools", ["Slack", "GitHub"]))
